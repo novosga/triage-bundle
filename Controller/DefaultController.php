@@ -162,9 +162,7 @@ class DefaultController extends Controller
             
             $envelope->setData($data);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -195,9 +193,7 @@ class DefaultController extends Controller
             $data = $service->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
             $envelope->setData($data);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);
@@ -234,9 +230,7 @@ class DefaultController extends Controller
             }
             $envelope->setData($data);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);

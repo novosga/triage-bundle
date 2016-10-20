@@ -1,6 +1,11 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
+    <h1>
+        {% trans %}Triagem{% endtrans %}
+        <small>{% trans %}Emissão de senhas{% endtrans %}</small>
+    </h1>
+    
     <div id="infobar" class="row">
         <div class="col-md-10 col-xs-9">
             <form role="form" onsubmit="return false">
