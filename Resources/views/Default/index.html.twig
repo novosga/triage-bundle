@@ -1,6 +1,10 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
+    <h1>
+        {% trans %}Triagem{% endtrans %}
+        <small>{% trans %}Emissão de senhas{% endtrans %}</small>
+    </h1>
     <div ng-app="triagem">
         <div ng-controller="TriagemController as ctrl">
             <div id="infobar" class="row">
