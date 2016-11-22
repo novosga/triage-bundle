@@ -4,6 +4,7 @@ namespace Novosga\TriagemBundle\Controller;
 
 use Exception;
 use Novosga\Entity\Unidade;
+use Novosga\Entity\Servico;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
@@ -128,11 +129,12 @@ class DefaultController extends Controller
     public function servicoInfoAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
+        $unidade = $request->getSession()->get('unidade');
         
         $envelope = new Envelope();
         $id = (int) $request->get('id');
         try {
-            $servico = $em->find("Novosga\Entity\Servico", $id);
+            $servico = $em->find(Servico::class, $id);
             if (!$servico) {
                 throw new Exception(_('Serviço inválido'));
             }
@@ -143,9 +145,9 @@ class DefaultController extends Controller
 
             // ultima senha
             $service = new AtendimentoService($em);
-            $atendimento = $service->ultimaSenhaServico($context->getUnidade(), $servico);
+            $atendimento = $service->ultimaSenhaServico($unidade, $servico);
             if ($atendimento) {
-                $data['senha'] = $atendimento->getSenha()->toString();
+                $data['senha'] = $atendimento->getSenha()->__toString();
                 $data['senhaId'] = $atendimento->getId();
             } else {
                 $data['senha'] = '-';
@@ -153,9 +155,16 @@ class DefaultController extends Controller
             }
             // subservicos
             $data['subservicos'] = [];
-            $query = $em->createQuery("SELECT e FROM Novosga\Entity\Servico e WHERE e.mestre = :mestre ORDER BY e.nome");
-            $query->setParameter('mestre', $servico->getId());
-            $subservicos = $query->getResult();
+            $subservicos = $em
+                        ->createQueryBuilder()
+                        ->select('e')
+                        ->from(Servico::class, 'e')
+                        ->where('e.mestre = :mestre')
+                        ->orderBy('e.nome', 'ASC')
+                        ->setParameter('mestre', $servico->getId())
+                        ->getQuery()
+                        ->getResult();
+            
             foreach ($subservicos as $s) {
                 $data['subservicos'][] = $s->getNome();
             }
@@ -226,17 +235,9 @@ class DefaultController extends Controller
             $numero = $request->get('numero');
             $service = new AtendimentoService($em);
             $atendimentos = $service->buscaAtendimentos($unidade, $numero);
-            $data = [
-                'total' => count($atendimentos)
-            ];
-            foreach ($atendimentos as $atendimento) {
-                $data['atendimentos'][] = $atendimento->jsonSerialize();
-            }
-            $envelope->setData($data);
+            $envelope->setData($atendimentos);
         } catch (Exception $e) {
-            $envelope
-                    ->setSuccess(false)
-                    ->setMessage($e->getMessage());
+            $envelope->exception($e);
         }
 
         return $this->json($envelope);

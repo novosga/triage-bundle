@@ -1,3 +1,167 @@
+(function() {
+    'use strict'
+    
+    angular.module('triagem', [])
+    .config(function($interpolateProvider){
+        $interpolateProvider.startSymbol('[[').endSymbol(']]');
+    })
+    .controller('TriagemController', function($http, $timeout, $q) {
+        var ctrl = this,
+            servicoIds = [],
+            timeoutId = null;
+
+        ctrl.servicos = (servicos || []);
+        ctrl.prioridades = (prioridades || []);
+        ctrl.unidade = unidade;
+        
+        ctrl.cliente = {};
+        ctrl.ultimaSenha = '';
+        ctrl.servicoInfo = {},
+        ctrl.totais = {};
+        ctrl.atendimento = {};
+        ctrl.servico = 0;
+        ctrl.search = '';
+        ctrl.searchResult = [];
+        ctrl.desabilitados = JSON.parse(App.Storage.get('novosga.triagem.desabilitados') || '[]');
+        
+        
+        ctrl.servicos.forEach(function (su) {
+            servicoIds.push(su.servico.id);
+        });
+        
+        ctrl.print = function(atendimento) {
+            App.Triagem.Impressao.loadIframe(atendimento);
+        };
+
+        ctrl.ajaxUpdate = function() {
+            $timeout.cancel(timeoutId);
+            
+            if (!App.paused) {
+                
+                var params = {
+                    ids: servicoIds.join(',')
+                };
+                
+                $http.get(App.url('/novosga.triagem/ajax_update'), { params: params })
+                        .then(function (response) {
+                            response = response.data;
+                            
+                            if (response.success) {
+                                ctrl.totais = response.data.servicos;
+                                ctrl.ultimaSenha = response.data.ultima;
+                            }
+                            
+                            timeoutId = $timeout(ctrl.ajaxUpdate, App.updateInterval);
+                        }, function () {
+                            timeoutId = $timeout(ctrl.ajaxUpdate, App.updateInterval);
+                        });
+            } else {
+                timeoutId = $timeout(ctrl.ajaxUpdate, App.updateInterval);
+            }
+        };
+
+        ctrl.showServicoInfo = function(servico) {
+            var params = {
+                id: servico
+            };
+
+            $http
+                .get(App.url('/novosga.triagem/servico_info'), { params: params })
+                .then(function(response) {
+                    ctrl.servicoInfo = response.data.data;
+                    $('#dialog-servico').modal('show');
+                });
+        };
+        
+        ctrl.showPrioridades = function(servicoId) {
+            if (ctrl.prioridades.length === 1) {
+                // se so tiver uma prioridade, emite a senha direto
+                ctrl.distribuiSenha(servicoId, ctrl.prioridades[0]);
+            } else {
+                ctrl.servico = servicoId;
+                $('#dialog-prioridade').modal('show');
+            }
+        };
+        
+        ctrl.distribuiSenhaNormal = function(servico) {
+            ctrl.distribuiSenha(servico, 1);
+        };
+        
+        ctrl.distribuiSenhaPrioritaria = function() {
+            if (!ctrl.prioridade || !ctrl.servico) {
+                return;
+            }
+            
+            ctrl.distribuiSenha(ctrl.servico, ctrl.prioridade);
+            
+            $('#dialog-prioridade').modal('hide');
+        };
+        
+        ctrl.distribuiSenha = function(servico, prioridade) {
+            var defer = $q.defer();
+            
+            if (!App.Triagem.pausado) {
+                // evitando de gerar várias senhas com múltiplos cliques
+                App.Triagem.pausado = true;
+                
+                var data = {
+                    servico: servico,
+                    prioridade: prioridade,
+                    cliente: ctrl.cliente,
+                    unidade: ctrl.unidade
+                };
+                
+                $http.post(App.url('/api/distribui'), data)
+                    .then(function(response) {
+                        App.Triagem.pausado = false;
+                
+                        ctrl.atendimento = response.data;
+                        
+                        $('#dialog-senha').modal('show');
+                
+                        defer.resolve(ctrl.atendimento);
+                    }, function() {
+                        App.Triagem.pausado = false;
+                        
+                        defer.reject();
+                    });
+            } else {
+                defer.reject();
+            }
+            
+            return defer.promise;
+        };
+        
+        ctrl.consultar = function() {
+            var url = App.url('/novosga.triagem/consulta_senha'),
+                params = {
+                    numero: ctrl.search
+                };
+            
+            $http.get(url, { params: params })
+                .then(function(response) {
+                    ctrl.searchResult = response.data.data;
+                });
+        };
+        
+        App.Websocket.connect();
+        
+        App.Websocket.on('new ticket', function () {
+            console.log('new ticket');
+        });
+        
+        App.Websocket.on('connect', function () {
+            $timeout.cancel(timeoutId);
+        });
+        
+        ctrl.ajaxUpdate();
+    });
+
+})();
+
+
+
+
 /**
  * Novo SGA - Triagem
  * @author Rogerio Lino <rogeriolino@gmail.com>
@@ -6,122 +170,8 @@ var SGA = SGA || {};
 
 App.Triagem = {
     
-    ids: [],
     imprimir: false,
     pausado: false,
-    prioridades: 0,
-    timeoutId: 0,
-    desabilitados: [],
-    
-    init: function() {
-        App.Triagem.ajaxUpdate();
-        $('#dialog-busca').on('show.bs.modal', function () {
-            $('#numero_busca').val('');
-            $('#result_table tbody').html('');
-        });
-        
-        this.desabilitados = JSON.parse(App.Triagem.Storage.get('desabilitados') || '[]');
-        
-        for (var i = 0; i < this.desabilitados.length; i++) {
-            var item = this.desabilitados[i];
-            $('.exibir-servicos .servico-' + item).prop('checked', false);
-            $('#triagem-servico-' + item).hide();
-        }
-        
-        $('.exibir-servicos input').on('change', function() {
-            var elem = $(this);
-            var index = App.Triagem.desabilitados.indexOf(elem.val());
-            
-            if (index !== -1) {
-                App.Triagem.desabilitados.splice(index, 1);
-            }
-            if (!elem.is(':checked')) {
-                App.Triagem.desabilitados.push(elem.val());
-                $('#triagem-servico-' + elem.val()).hide();
-            } else {
-                $('#triagem-servico-' + elem.val()).show();
-            }
-            
-            App.Triagem.Storage.set('desabilitados', JSON.stringify(App.Triagem.desabilitados));
-        });
-    },
-    
-    servicoInfo: function(servico) {
-        App.ajax({
-            type: 'get',
-            url: App.url('/novosga.triagem/servico_info'),
-            data: {
-                id: servico
-            },
-            success: function(response) {
-                var dialog = $("#dialog-servico");
-                dialog.find('p.ultima-senha span').text(response.data.senha);
-                var btnPrint = dialog.find('p.ultima-senha a');
-                btnPrint.off();
-                if (response.data.senhaId) {
-                    btnPrint.show().on('click', function() {
-                        App.Triagem.Impressao.loadIframe({ id: response.data.senhaId });
-                        return false;
-                    });
-                } else {
-                    btnPrint.hide();
-                }
-                dialog.find('p.nome').text(response.data.nome);
-                dialog.find('p.descricao').text(response.data.descricao);
-                var subservicos = dialog.find('ul.subservicos.notempty');
-                if (response.data.subservicos && response.data.subservicos.length > 0) {
-                    subservicos.html('');
-                    for (var i = 0; i < response.data.subservicos.length; i++) {
-                        subservicos.append('<li>' + response.data.subservicos[i] + '</li>');
-                    }
-                    subservicos.show();
-                    dialog.find('ul.subservicos.empty').hide();
-                } else {
-                    subservicos.hide();
-                    dialog.find('ul.subservicos.empty').show();
-                }
-                App.dialogs.modal(dialog);
-            }
-        });
-    },
-    
-    ajaxUpdate: function() {
-        clearTimeout(App.Triagem.timeoutId);
-        if (!App.paused) {
-            App.ajax({
-                url: App.url('/novosga.triagem/ajax_update'),
-                data: {
-                    ids: App.Triagem.ids.join(',')
-                },
-                success: function(response) {
-                    $('.fila .total').text('-');
-                    if (response.success) {
-                        if (response.data.servicos) {
-                            for (var i in response.data.servicos) {
-                                var qtd = response.data.servicos[i];
-                                $('#total-aguardando-' + i).text(qtd.fila);
-                                $('#total-senhas-' + i).text(qtd.total);
-                            }
-                        }
-                        if (response.data.ultima) {
-                            var elem = $('#infobar .ultima-senha .label');
-                            elem.html('<span class="glyphicon glyphicon-print"></span> ' + response.data.ultima.senha);
-                            if (response.data.ultima.prioridade) {
-                                elem.removeClass('label-default').addClass('label-danger');
-                            } else {
-                                elem.removeClass('label-danger').addClass('label-default');
-                            }
-                        }
-                    }
-                },
-                complete: function() {
-                    App.Triagem.timeoutId = setTimeout(App.Triagem.ajaxUpdate, App.updateInterval);
-                }
-            });
-        } else {
-            App.Triagem.timeoutId = setTimeout(App.Triagem.ajaxUpdate, App.updateInterval);
-        }
-    },
     
     Impressao: {
         
@@ -144,151 +194,6 @@ App.Triagem = {
             }
         }
         
-    },
-            
-    distribuiSenha: function(servico, prioridade, complete) {
-        var cliente = {
-            nome: $('#cli_nome').val(),
-            doc: $('#cli_doc').val()
-        };
-        $('#cli_nome, #cli_doc').val('');
-        if (!App.Triagem.pausado) {
-            // evitando de gerar várias senhas com múltiplos cliques
-            App.Triagem.pausado = true;
-            App.ajax({
-                url: App.url('/novosga.triagem/distribui_senha'),
-                type: 'post',
-                data: {
-                    servico: servico, 
-                    prioridade: prioridade,
-                    cli_nome: cliente.nome || '',
-                    cli_doc: cliente.doc || ''
-                },
-                success: function(response) {
-                    App.Triagem.Impressao.imprimir(response.data);
-                    App.Triagem.ajaxUpdate();
-                    if (typeof(complete) === 'function') {
-                        complete(response);
-                    }
-                    var dialog = $("#dialog-senha");
-                    App.dialogs.modal(dialog, { 
-                        width: 450, 
-                        buttons: {},
-                        open: function() {
-                            var a = response.data;
-                            dialog.find('.numero').text(a.senha);
-                            dialog.find('.servico').text(a.servico);
-                            dialog.find('.nome-prioridade').text(a.nomePrioridade);
-                            if (a.prioridade) {
-                                dialog.find('>div').addClass('prioridade');
-                            } else {
-                                dialog.find('>div').removeClass('prioridade');
-                            }
-                        }
-                    });
-                },
-                complete: function() {
-                    App.Triagem.pausado = false;
-                }
-            });
-        }
-    },
-
-    senhaNormal: function(btn) {
-        btn = $(btn);
-        App.Triagem.distribuiSenha(btn.data('id'), 1);
-    },
-
-    senhaPrioridade: function(btn, complete) {
-        btn = $(btn);
-        App.Triagem.distribuiSenha(btn.data('id'), $('input:radio[name=prioridade]:checked').val(), complete);
-    },
-
-    prioridade: function(btn) {
-        if (App.Triagem.prioridades.length === 1) {
-            // se so tiver uma prioridade, emite a senha direto
-            App.Triagem.distribuiSenha($(btn).data('id'), App.Triagem.prioridades[0]);
-        } else {
-            var dialog = $("#dialog-prioridade");
-            App.dialogs.modal(dialog, { 
-                create: function() {
-                    $('input:radio[name=prioridade]').on('click', function() {
-                        dialog.find("button").prop('disabled', false);
-                    });
-                    dialog.find("button").data('id', $(btn).data('id'));
-                },
-                open: function() {
-                    $('input:radio[name=prioridade]').prop('checked', false);
-                    dialog.find("button").prop('disabled', true);
-                }
-            });
-        }
-    },
-
-    consultar: function() {
-        App.ajax({
-            url: App.url('/novosga.triagem/consulta_senha'),
-            data: {numero: $('#numero_busca').val()},
-            success: function(response) {
-                var result = $('#result_table tbody');
-                result.html('');
-                if (response.data.total > 0) {
-                    for (var i = 0; i < response.data.total; i++) {
-                        var atendimento = response.data.atendimentos[i];
-                        var btnPrint = '<a href="#" class="glyphicon glyphicon-print" onclick="App.Triagem.Impressao.loadIframe({ id: ' + atendimento.id +' }); return false;"></a>';
-                        var tr = '<tr>';
-                        tr += '<td>' + atendimento.senha + ' ' + btnPrint + '</td>';
-                        tr += '<td>' + atendimento.servico + '</td>';
-                        tr += '<td>' + App.formatDate(atendimento.chegada) + '</td>';
-                        tr += '<td>' + App.formatTime(atendimento.inicio) + '</td>';
-                        tr += '<td>' + App.formatTime(atendimento.fim) + '</td>';
-                        tr += '<td>' + (atendimento.triagem ? atendimento.triagem : '-') + '</td>';
-                        tr += '<td>' + (atendimento.usuario ? atendimento.usuario : '-') + '</td>';
-                        tr += '<td>' + atendimento.nomeStatus + '</td>';
-                        tr += '</tr>';
-                        result.append(tr);
-                    }
-                }
-            }
-        });
-    },
-    
-    Storage: {
-        
-        prefix: 'novosga.triagem.',
-
-        set: function(name, value) {
-            name = this.prefix + name;
-            if (localStorage) {
-                localStorage.setItem(name, value);
-            } else {
-                // cookie
-                var expires = "";
-                document.cookie = name + "=" + value + expires + "; path=/";
-            }
-        },
-                
-        get: function(name) {
-            name = this.prefix + name;
-            if (localStorage) {
-                return localStorage.getItem(name);
-            } else {
-                // cookie
-                var nameEQ = name + "=";
-                var ca = document.cookie.split(';');
-                for(var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) === ' ') {
-                        c = c.substring(1,c.length);
-                    }
-                    if (c.indexOf(nameEQ) === 0) {
-                        return c.substring(nameEQ.length, c.length);
-                    }
-                }
-            }
-            return null;
-        }
-
-    },
+    }
     
 };
