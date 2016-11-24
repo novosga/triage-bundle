@@ -2,283 +2,311 @@
 
 {% block body %}
     <h1>
+        <i class="fa fa-print" aria-hidden="true"></i>
         {% trans %}Triagem{% endtrans %}
         <small>{% trans %}Emissão de senhas{% endtrans %}</small>
     </h1>
-    <div ng-app="triagem">
-        <div ng-controller="TriagemController as ctrl">
-            <div id="infobar" class="row">
-                <div class="col-md-10 col-xs-9">
-                    <form role="form" onsubmit="return false">
-                        <div class="col-xs-6">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="basic-addon1">
-                                    <i class="fa fa-user"></i>
-                                </span>
-                                <label for="cliente-nome" class="sr-only">{% trans %}Nome{% endtrans %}</label>
-                                <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{% trans %}Nome{% endtrans %}" ng-model="ctrl.cliente.nome" />
-                            </div>
+    <div id="triagem">
+        <div id="infobar" class="row">
+            <div class="col-md-10 col-xs-9">
+                <form role="form" onsubmit="return false">
+                    <div class="col-xs-6">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">
+                                <i class="fa fa-user"></i>
+                            </span>
+                            <label for="cliente-nome" class="sr-only">{% trans %}Nome{% endtrans %}</label>
+                            <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{% trans %}Nome{% endtrans %}" v-model="cliente.nome" />
                         </div>
-                        <div class="col-xs-6">
-                            <div class="input-group">
-                                <span class="input-group-addon" id="basic-addon1">
-                                    <i class="fa fa-credit-card"></i>
-                                </span>
-                                <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
-                                <input type="text" id="cliente-documento" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" ng-model="ctrl.cliente.documento" />
-                            </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">
+                                <i class="fa fa-credit-card"></i>
+                            </span>
+                            <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
+                            <input type="text" id="cliente-documento" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" />
                         </div>
-                    </form>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-2 col-xs-3">
+                <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}" v-if="ultimaSenha">
+                    <span class="label label-default" ng-class="{ 'label-default': ultimaSenha.prioridade==0, 'label-danger': ultimaSenha.prioridade.peso>0 }">
+                        <span class="glyphicon glyphicon-print"></span> 
+                        {%- verbatim -%}
+                            {{ultimaSenha.senha.format}}
+                        {%- endverbatim -%}
+                    </span>
                 </div>
-                <div class="col-md-2 col-xs-3">
-                    <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}">
-                        <span class="label label-default" ng-class="{ 'label-default': ctrl.ultimaSenha.prioridade==0, 'label-danger': ctrl.ultimaSenha.prioridade.peso>0 }">
-                            <span class="glyphicon glyphicon-print"></span> [[ctrl.ultimaSenha.senha.format]]
+            </div>
+        </div>
+
+        <div id="triagem-servicos" class="row">
+            <div class="triagem-servico col-md-6" v-for="su in servicos">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <a href="#" v-on:click="showServicoInfo(su.servico.id)">
+                            {%- verbatim -%}
+                                {{su.sigla}} - {{su.servico.nome}}
+                            {%- endverbatim -%}
+                            <span class="badge">
+                                <abbr class="total" title="{% trans %}Aguardando atendimento{% endtrans %}">
+                                    {%- verbatim -%}
+                                        {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
+                                    {%- endverbatim -%}
+                                </abbr>
+                                &nbsp;/&nbsp;
+                                <abbr class="total" title="{% trans %}Total de senhas do serviço{% endtrans %}">
+                                    {%- verbatim -%}
+                                        {{totais[su.servico.id] ? totais[su.servico.id].total : '-'}}
+                                    {%- endverbatim -%}
+                                </abbr>
+                            </span>
+                        </a>
+                        <span class="buttons pull-right">
+                            <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click="distribuiSenhaNormal(su.servico.id)">
+                                {% trans %}Normal{% endtrans %}
+                            </button>
+                            {% if prioridades|length %}
+                                <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click="showPrioridades(su.servico.id)" v-if="su.prioridade">
+                                    {% trans %}Prioridade{% endtrans %}
+                                </button>
+                            {% endif %}
                         </span>
                     </div>
                 </div>
             </div>
-
-            <div id="triagem-servicos" class="row">
-                <div class="triagem-servico col-md-6 ng-cloak" ng-repeat="su in ctrl.servicos">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <a href="#" title="[[su.sigla]] - [[su.servico.nome]]" ng-click="ctrl.showServicoInfo(su.servico.id)">
-                                [[su.sigla]] - [[su.servico.nome]]
-                                <span class="badge">
-                                    <abbr class="total" title="{% trans %}Aguardando atendimento{% endtrans %}">
-                                        [[ ctrl.totais[su.servico.id].fila ]]
-                                    </abbr>
-                                    &nbsp;/&nbsp;
-                                    <abbr class="total" title="{% trans %}Total de senhas do serviço{% endtrans %}">
-                                        [[ ctrl.totais[su.servico.id].total ]]
-                                    </abbr>
-                                </span>
-                            </a>
-                            <span class="buttons pull-right">
-                                <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" ng-click="ctrl.distribuiSenhaNormal(su.servico.id)">
-                                    {% trans %}Normal{% endtrans %}
-                                </button>
-                                {% if prioridades|length %}
-                                    <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" ng-click="ctrl.showPrioridades(su.servico.id)" ng-show="su.prioridade">
-                                        {% trans %}Prioridade{% endtrans %}
-                                    </button>
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <p ng-hide="ctrl.servicos.length">
-                    {% trans %}Nenhum serviço habilitado para a unidade atual{% endtrans %}
-                </p>
-            </div>
-            <p class="links">
-                <a href="#dialog-busca" class="btn btn-default" data-toggle="modal">
-                    <span class="glyphicon glyphicon-search"></span>&nbsp;
-                    {% trans %}Consultar senha{% endtrans %}
-                </a>
-                <a href="#dialog-triagem-config" class="btn btn-default" data-toggle="modal">
-                    <span class="glyphicon glyphicon-cog"></span>&nbsp;
-                    {% trans %}Configuração{% endtrans %}
-                </a>
+            <p v-if="!servicos.length">
+                {% trans %}Nenhum serviço habilitado para a unidade atual{% endtrans %}
             </p>
+        </div>
+        <p class="links">
+            <a href="#dialog-busca" class="btn btn-default" data-toggle="modal">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;
+                {% trans %}Consultar senha{% endtrans %}
+            </a>
+            <a href="#dialog-triagem-config" class="btn btn-default" data-toggle="modal">
+                <span class="glyphicon glyphicon-cog"></span>&nbsp;
+                {% trans %}Configuração{% endtrans %}
+            </a>
+        </p>
 
-            {# iframe para impressao, evitando popup #}
-            <iframe id="frame-impressao" width="300" height="150" style="display:none"></iframe>
+        {# iframe para impressao, evitando popup #}
+        <iframe id="frame-impressao" width="300" height="150" style="display:none"></iframe>
 
-            {# dialog para exibir a senha gerada #}
-            <div id="dialog-senha" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{% trans %}Senha|Bilhete{% endtrans %}</h4>
+        {# dialog para exibir a senha gerada #}
+        <div id="dialog-senha" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans %}Senha|Bilhete{% endtrans %}</h4>
+                    </div>
+                    <div class="modal-body" v-if="atendimento">
+                        <div class="field">
+                            <h4>{% trans %}Número{% endtrans %}</h4>
+                            <p class="numero">
+                                {%- verbatim -%}
+                                    {{atendimento.senha.format}}
+                                {%- endverbatim -%}
+                            </p>
                         </div>
-                        <div class="modal-body">
-                            <div class="field">
-                                <h4>{% trans %}Número{% endtrans %}</h4>
-                                <p class="numero">
-                                    [[ctrl.atendimento.senha.format]]
-                                </p>
-                            </div>
-                            <div class="field">
-                                <h4>{% trans %}Serviço{% endtrans %}</h4>
-                                <p class="servico">
-                                    [[ctrl.atendimento.servico.nome]]
-                                </p>
-                            </div>
-                            <div class="field">
-                                <h4>{% trans %}Prioridade{% endtrans %}</h4>
-                                <p class="nome-prioridade">
-                                    [[ctrl.atendimento.prioridade.nome]]
-                                </p>
-                            </div>
+                        <div class="field">
+                            <h4>{% trans %}Serviço{% endtrans %}</h4>
+                            <p class="servico">
+                                {%- verbatim -%}
+                                    {{atendimento.servico.nome}}
+                                {%- endverbatim -%}
+                            </p>
+                        </div>
+                        <div class="field">
+                            <h4>{% trans %}Prioridade{% endtrans %}</h4>
+                            <p class="nome-prioridade">
+                                {%- verbatim -%}
+                                    {{atendimento.prioridade.nome}}
+                                {%- endverbatim -%}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {# dialog de configuracao #}
-            <div id="dialog-triagem-config" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{% trans %}Configuração{% endtrans %}</h4>
-                        </div>
-                        <div class="modal-body">
-                            <h4>{% trans %}Exibir serviços{% endtrans %}</h4>
-                            <div class="row exibir-servicos">
-                                {% for servicoUnidade in servicos %}
-                                    <div class="col-sm-6">
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" class="servico-{{ servicoUnidade.servico.id }}" value="{{ servicoUnidade.servico.id }}" checked> {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+        {# dialog de configuracao #}
+        <div id="dialog-triagem-config" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans %}Configuração{% endtrans %}</h4>
                     </div>
-                </div>
-            </div>
-
-            {# dialog para exibir informacoes do servico #}
-            <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div>
-                                <h4>{% trans %}Última senha{% endtrans %}</h4>
-                                <p class="ultima-senha">
-                                    <span>[[ctrl.servicoInfo.senha]]</span>
-                                    <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" ng-click="ctrl.print({ id: ctrl.servicoInfo.senhaId })"
-                                            ng-click="ctrl.print({ id: ctrl.servicoInfo.senhaId })" ng-show="ctrl.servicoInfo.senhaId">
-                                        <span class="glyphicon glyphicon-print"></span>
-                                    </button>
-                                </p>
-                            </div>
-                            <div>
-                                <h4>{% trans %}Nome original do serviço{% endtrans %}</h4>
-                                <p class="nome">
-                                    [[ctrl.servicoInfo.nome]]
-                                </p>
-                            </div>
-                            <div>
-                                <h4>{% trans %}Descrição{% endtrans %}</h4>
-                                <p class="descricao">
-                                    [[ctrl.servicoInfo.descricao]]
-                                </p>
-                            </div>
-                            <div>
-                                <h4>{% trans %}Subserviços{% endtrans %}</h4>
-                                <ul class="subservicos notempty" ng-show="ctrl.servicoInfo.subservicos.length">
-                                    <li ng-repeat="s in ctrl.servicoInfo.subservicos">[[s]]</li>
-                                </ul>
-                                <ul class="subservicos empty" ng-show="ctrl.servicoInfo.subservicos.length">
-                                    <li>{% trans %}Não há subserviços{% endtrans %}</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# dialog para escolher a prioridade da senha #}
-            <div id="dialog-prioridade" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{% trans %}Prioridade{% endtrans %}</h4>
-                        </div>
-                        <div class="modal-body">
-                            <ul>
-                                {% for prioridade in prioridades %}
-                                    <li>
+                    <div class="modal-body">
+                        <h4>{% trans %}Exibir serviços{% endtrans %}</h4>
+                        <div class="row exibir-servicos">
+                            {% for servicoUnidade in servicos %}
+                                <div class="col-sm-6">
+                                    <div class="checkbox">
                                         <label>
-                                            <input type="radio" name="prioridade" value="{{ prioridade.id }}" ng-model="ctrl.prioridade">
-                                            {{ prioridade.nome }}
+                                            <input type="checkbox" class="servico-{{ servicoUnidade.servico.id }}" value="{{ servicoUnidade.servico.id }}" checked> {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
                                         </label>
-                                    </li>
-                                {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# dialog para exibir informacoes do servico #}
+        <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
+                    </div>
+                    <div class="modal-body" v-if="servicoInfo">
+                        <div>
+                            <h4>{% trans %}Última senha{% endtrans %}</h4>
+                            <p class="ultima-senha">
+                                <span>
+                                    {%- verbatim -%}
+                                        {{servicoInfo.senha}}
+                                    {%- endverbatim -%}
+                                </span>
+                                <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" 
+                                        v-on:click="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
+                                    <span class="glyphicon glyphicon-print"></span>
+                                </button>
+                            </p>
+                        </div>
+                        <div>
+                            <h4>{% trans %}Nome original do serviço{% endtrans %}</h4>
+                            <p class="nome">
+                                {%- verbatim -%}
+                                    {{servicoInfo.nome}}
+                                {%- endverbatim -%}
+                            </p>
+                        </div>
+                        <div>
+                            <h4>{% trans %}Descrição{% endtrans %}</h4>
+                            <p class="descricao">
+                                {%- verbatim -%}
+                                    {{servicoInfo.descricao}}
+                                {%- endverbatim -%}
+                            </p>
+                        </div>
+                        <div>
+                            <h4>{% trans %}Subserviços{% endtrans %}</h4>
+                            <ul class="subservicos notempty" v-if="servicoInfo.subservicos.length">
+                                <li v-for="servico in servicoInfo.subservicos">
+                                    {%- verbatim -%}
+                                        {{servico}}
+                                    {%- endverbatim -%}
+                                </li>
+                            </ul>
+                            <ul class="subservicos empty" v-if="!servicoInfo.subservicos.length">
+                                <li>{% trans %}Não há subserviços{% endtrans %}</li>
                             </ul>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" ng-click="ctrl.distribuiSenhaPrioritaria()">
-                                {% trans %}Gerar prioridade{% endtrans %}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {# busca #}
-            <div id="dialog-busca" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">{% trans %}Busca{% endtrans %}</h4>
-                        </div>
-                        <div class="modal-body">
-                            <form class="form-inline" role="form" ng-submit="ctrl.consultar()">
-                                <div class="form-group">
-                                    <input type="text" maxlength="10" class="form-search form-control" placeholder="{% trans %}Número{% endtrans %}" ng-model="ctrl.search">
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    {% trans %}Consultar{% endtrans %}
-                                </button>
-                            </form>
-                            <div class="result">
-                                <table id="result_table" class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>{% trans %}Número{% endtrans %}</th>
-                                            <th>{% trans %}Serviço{% endtrans %}</th>
-                                            <th>{% trans %}Data chegada{% endtrans %}</th>
-                                            <th>{% trans %}Data início{% endtrans %}</th>
-                                            <th>{% trans %}Data fim{% endtrans %}</th>
-                                            <th>{% trans %}Triagem{% endtrans %}</th>
-                                            <th>{% trans %}Atendente{% endtrans %}</th>
-                                            <th>{% trans %}Situação{% endtrans %}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="a in ctrl.searchResult">
-                                            <td>
-                                                [[a.senha.format]]
-                                            </td>
-                                            <td>
-                                                [[a.servico.nome]]
-                                            </td>
-                                            <td>
-                                                [[a.chegada]]
-                                            </td>
-                                            <td>
-                                                [[a.inicio]]
-                                            </td>
-                                            <td>
-                                                [[a.fim]]
-                                            </td>
-                                            <td>
-                                                [[a.triagem]]
-                                            </td>
-                                            <td>
-                                                [[a.usuario]]
-                                            </td>
-                                            <td>
-                                                [[a.status]]
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+        {# dialog para escolher a prioridade da senha #}
+        <div id="dialog-prioridade" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans %}Prioridade{% endtrans %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            {% for prioridade in prioridades %}
+                                <li>
+                                    <label>
+                                        <input type="radio" name="prioridade" value="{{ prioridade.id }}" v-model="prioridade">
+                                        {{ prioridade.nome }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" v-on:click="distribuiSenhaPrioritaria">
+                            {% trans %}Gerar prioridade{% endtrans %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# busca #}
+        <div id="dialog-busca" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% trans %}Busca{% endtrans %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-inline" role="form" v-on:submit.prevent="consultar">
+                            <div class="form-group">
+                                <input type="text" maxlength="10" class="form-search form-control" placeholder="{% trans %}Número{% endtrans %}" v-model="search">
                             </div>
+                            <button type="submit" class="btn btn-primary">
+                                {% trans %}Consultar{% endtrans %}
+                            </button>
+                        </form>
+                        <div class="result">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans %}Número{% endtrans %}</th>
+                                        <th>{% trans %}Serviço{% endtrans %}</th>
+                                        <th>{% trans %}Data chegada{% endtrans %}</th>
+                                        <th>{% trans %}Data início{% endtrans %}</th>
+                                        <th>{% trans %}Data fim{% endtrans %}</th>
+                                        <th>{% trans %}Triagem{% endtrans %}</th>
+                                        <th>{% trans %}Atendente{% endtrans %}</th>
+                                        <th>{% trans %}Situação{% endtrans %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% verbatim %}
+                                        <tr v-for="a in searchResult">
+                                            <td>
+                                                {{a.senha.format}}
+                                            </td>
+                                            <td>
+                                                {{a.servico.nome}}
+                                            </td>
+                                            <td>
+                                                {{a.chegada}}
+                                            </td>
+                                            <td>
+                                                {{a.inicio}}
+                                            </td>
+                                            <td>
+                                                {{a.fim}}
+                                            </td>
+                                            <td>
+                                                {{a.triagem}}
+                                            </td>
+                                            <td>
+                                                {{a.usuario}}
+                                            </td>
+                                            <td>
+                                                {{a.status}}
+                                            </td>
+                                        </tr>
+                                    {% endverbatim %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -299,6 +327,5 @@
             prioridades = {{ prioridades|json_encode()|raw}},
             unidade = {{ unidade.id }};
     </script>
-    <script type="text/javascript" src="{{ asset('js/angular.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriagem/js/script.js') }}"></script>
 {% endblock %}

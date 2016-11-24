@@ -5,6 +5,7 @@ namespace Novosga\TriagemBundle\Controller;
 use Exception;
 use Novosga\Entity\Unidade;
 use Novosga\Entity\Servico;
+use Novosga\Entity\Atendimento;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
@@ -48,14 +49,14 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      * 
-     * @Route("/imprimir", name="novosga_triagem_print")
+     * @Route("/imprimir/{id}", name="novosga_triagem_print")
      */
-    public function imprimirAction(Request $request)
+    public function imprimirAction(Request $request, Atendimento $atendimento)
     {
-        $id = (int) $request->get('id');
-        $ctrl = new \Novosga\Controller\TicketController($this->app());
+        $service = $this->get('novosga.ticket_service');
+        $html = $service->printTicket($atendimento);
 
-        return $ctrl->printTicket($ctrl->getAtendimento($id));
+        return new Response($html);
     }
 
     /**
