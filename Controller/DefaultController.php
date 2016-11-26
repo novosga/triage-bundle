@@ -33,7 +33,8 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $prioridades = $em->getRepository(\Novosga\Entity\Prioridade::class)->findAtivas();
         $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.status = 1');
@@ -70,7 +71,8 @@ class DefaultController extends Controller
         $em = $this->getDoctrine()->getManager();
         
         $envelope = new Envelope();
-        $unidade = $request->getSession()->get('unidade');
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         if ($unidade) {
             $ids = $request->get('ids');
@@ -130,7 +132,8 @@ class DefaultController extends Controller
     public function servicoInfoAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $unidade = $request->getSession()->get('unidade');
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $envelope = new Envelope();
         $id = (int) $request->get('id');
@@ -190,9 +193,8 @@ class DefaultController extends Controller
         $em = $this->getDoctrine()->getManager();
         
         $envelope = new Envelope();
-        $unidade = $request->getSession()->get('unidade');
-        $unidade = $em->getReference(Unidade::class, $unidade->getId());
         $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         $servico = (int) $request->get('servico');
         $prioridade = (int) $request->get('prioridade');
@@ -222,7 +224,8 @@ class DefaultController extends Controller
         $em = $this->getDoctrine()->getManager();
         
         $envelope = new Envelope();
-        $unidade = $request->getSession()->get('unidade');
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
         
         try {
             if (!$unidade) {
