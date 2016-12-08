@@ -12,13 +12,11 @@
 namespace Novosga\TriagemBundle\Controller;
 
 use Exception;
-use Novosga\Entity\Unidade;
 use Novosga\Entity\Servico;
 use Novosga\Entity\Atendimento;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
-use Novosga\Util\Arrays;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -84,8 +82,7 @@ class DefaultController extends Controller
         $unidade = $usuario->getLotacao()->getUnidade();
         
         if ($unidade) {
-            $ids = $request->get('ids');
-            $ids = Arrays::valuesToInt(explode(',', $ids));
+            $ids = explode(',', $request->get('ids'));
             $senhas = [];
             if (count($ids)) {
                 $dql = "
