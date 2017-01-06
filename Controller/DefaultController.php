@@ -46,7 +46,7 @@ class DefaultController extends Controller
         $prioridades = $em->getRepository(\Novosga\Entity\Prioridade::class)->findAtivas();
         $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.status = 1');
         
-        return $this->render('NovosgaTriagemBundle:Default:index.html.twig', [
+        return $this->render('NovosgaTriagemBundle:default:index.html.twig', [
             'unidade' => $unidade,
             'servicos' => $servicos,
             'prioridades' => $prioridades,

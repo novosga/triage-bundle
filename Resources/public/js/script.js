@@ -83,7 +83,7 @@
                         id: servico
                     },
                     success: function(response) {
-                        self.servicoInfo = response.data.data;
+                        self.servicoInfo = response.data;
                         $('#dialog-servico').modal('show');
                     }
                 });
@@ -170,7 +170,7 @@
 
             init: function () {
                 var self = this;
-                App.Websocket.connect();
+                //App.Websocket.connect();
 
                 App.Websocket.on('new ticket', function () {
                     console.log('new ticket');

@@ -6,7 +6,7 @@
         {% trans %}Triagem{% endtrans %}
         <small>{% trans %}Emissão de senhas{% endtrans %}</small>
     </h1>
-    <div id="triagem">
+    <div id="triagem" v-cloak>
         <div id="infobar" class="row">
             <div class="col-md-10 col-xs-9">
                 <form role="form" onsubmit="return false">
@@ -33,7 +33,7 @@
             <div class="col-md-2 col-xs-3">
                 <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}" v-if="ultimaSenha">
                     <span class="label label-default" ng-class="{ 'label-default': ultimaSenha.prioridade==0, 'label-danger': ultimaSenha.prioridade.peso>0 }">
-                        <span class="glyphicon glyphicon-print"></span> 
+                        <span class="glyphicon glyphicon-print"></span>&nbsp;
                         {%- verbatim -%}
                             {{ultimaSenha.senha.format}}
                         {%- endverbatim -%}
@@ -50,20 +50,20 @@
                             {%- verbatim -%}
                                 {{su.sigla}} - {{su.servico.nome}}
                             {%- endverbatim -%}
-                            <span class="badge">
-                                <abbr class="total" title="{% trans %}Aguardando atendimento{% endtrans %}">
-                                    {%- verbatim -%}
-                                        {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
-                                    {%- endverbatim -%}
-                                </abbr>
-                                &nbsp;/&nbsp;
-                                <abbr class="total" title="{% trans %}Total de senhas do serviço{% endtrans %}">
-                                    {%- verbatim -%}
-                                        {{totais[su.servico.id] ? totais[su.servico.id].total : '-'}}
-                                    {%- endverbatim -%}
-                                </abbr>
-                            </span>
                         </a>
+                        <span class="badge">
+                            <abbr class="total" title="{% trans %}Aguardando atendimento{% endtrans %}">
+                                {%- verbatim -%}
+                                    {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
+                                {%- endverbatim -%}
+                            </abbr>
+                            &nbsp;/&nbsp;
+                            <abbr class="total" title="{% trans %}Total de senhas do serviço{% endtrans %}">
+                                {%- verbatim -%}
+                                    {{totais[su.servico.id] ? totais[su.servico.id].total : '-'}}
+                                {%- endverbatim -%}
+                            </abbr>
+                        </span>
                         <span class="buttons pull-right">
                             <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click="distribuiSenhaNormal(su.servico.id)">
                                 {% trans %}Normal{% endtrans %}
