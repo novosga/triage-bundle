@@ -34,14 +34,16 @@
             ultimaSenha: null,
             servicoInfo: null,
             atendimento: null,
-            imprimir: true,
             pausado: false,
             totais: {},
             servico: 0,
             prioridade: 0,
             search: '',
             searchResult: [],
-            servicosHabilitados: [],
+            config: {
+                imppressao: true,
+                servicosHabilitados: [],
+            }
         },
         methods: {
             ajaxUpdate: function() {
@@ -69,7 +71,7 @@
             },
 
             print: function(atendimento) {
-                if (this.imprimir) {
+                if (this.config.imprimir) {
                     Impressao.imprimir(atendimento);
                 }
             },
@@ -169,10 +171,37 @@
             },
             
             saveConfig: function () {
-                var ids = this.servicosHabilitados.map(function (servicoUnidade) {
-                    return servicoUnidade.servico.id;
-                });
-                App.Storage.set('novosga.triagem.habilitados', JSON.stringify(ids));
+                var ids = this.config.servicosHabilitados.map(function (servicoUnidade) {
+                        return servicoUnidade.servico.id;
+                    }),
+                    config = {
+                        servicos: ids,
+                        imprimir: this.config.imprimir,
+                    };
+                App.Storage.set('novosga.triagem', JSON.stringify(config));
+            },
+            
+            loadConfig: function () {
+                try {
+                    var json = App.Storage.get('novosga.triagem'),
+                        config = JSON.parse(json);
+                        
+                    config.servicos = config.servicos || [];
+                    
+                    this.config.imprimir = !!config.imprimir;
+                
+                    this.config.servicosHabilitados = this.servicos.filter(function (servicoUnidade) {
+                        for (var  i = 0; i < config.servicos.length; i++) {
+                            if (servicoUnidade.servico.id === config.servicos[i]) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                } catch (e) {
+                    this.config.imprimir = true;
+                    this.config.servicosHabilitados = this.servicos;
+                }
             },
 
             init: function () {
@@ -191,21 +220,7 @@
                     self.servicoIds.push(su.servico.id);
                 });
 
-                this.servicosHabilitados = [];
-                try {
-                    var json = App.Storage.get('novosga.triagem.habilitados') || '[]',
-                        ids = JSON.parse(json);
-                
-                    self.servicosHabilitados = this.servicos.filter(function (servicoUnidade) {
-                        for (var  i = 0; i < ids.length; i++) {
-                            if (servicoUnidade.servico.id === ids[i]) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                } catch (e) {
-                }
+                this.loadConfig();
 
                 this.ajaxUpdate();
             }

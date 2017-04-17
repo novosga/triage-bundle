@@ -43,7 +43,7 @@
         </div>
 
         <div id="triagem-servicos" class="row">
-            <div class="triagem-servico col-md-6" v-for="su in servicosHabilitados">
+            <div class="triagem-servico col-md-6" v-for="su in config.servicosHabilitados">
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <a href="#" v-on:click.prevent="showServicoInfo(su.servico.id)">
@@ -142,18 +142,28 @@
                         <h4 class="modal-title">{% trans %}Configuração{% endtrans %}</h4>
                     </div>
                     <div class="modal-body">
-                        <h4>{% trans %}Exibir serviços{% endtrans %}</h4>
-                        <div class="row exibir-servicos">
+                        <h4>{% trans %}Impressão{% endtrans %}</h4>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
+                                        {% trans %}Habilitar impressão{% endtrans %}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>{% trans %}Serviços{% endtrans %}</h4>
+                        <div class="row">
                             <div class="col-sm-6" v-for="su in servicos">
-                                <div class="triagem-servico col-md-6">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" v-bind:value="su" v-model="servicosHabilitados" v-on:change="saveConfig"> 
-                                            {% verbatim %}
-                                                {{ su.sigla }} - {{ su.servico.nome }}
-                                            {% endverbatim %}
-                                        </label>
-                                    </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" v-bind:value="su" v-model="config.servicosHabilitados" v-on:change="saveConfig"> 
+                                        {% verbatim %}
+                                            {{ su.sigla }} - {{ su.servico.nome }}
+                                        {% endverbatim %}
+                                    </label>
                                 </div>
                             </div>
                         </div>
