@@ -43,10 +43,10 @@
         </div>
 
         <div id="triagem-servicos" class="row">
-            <div class="triagem-servico col-md-6" v-for="su in servicos">
+            <div class="triagem-servico col-md-6" v-for="su in servicosHabilitados">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <a href="#" v-on:click="showServicoInfo(su.servico.id)">
+                        <a href="#" v-on:click.prevent="showServicoInfo(su.servico.id)">
                             {%- verbatim -%}
                                 {{su.sigla}} - {{su.servico.nome}}
                             {%- endverbatim -%}
@@ -65,11 +65,11 @@
                             </abbr>
                         </span>
                         <span class="buttons pull-right">
-                            <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click="distribuiSenhaNormal(su.servico.id)">
+                            <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click.prevent="distribuiSenhaNormal(su.servico.id)">
                                 {% trans %}Normal{% endtrans %}
                             </button>
                             {% if prioridades|length %}
-                                <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click="showPrioridades(su.servico.id)" v-if="su.prioridade">
+                                <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click.prevent="showPrioridades(su.servico.id)" v-if="su.prioridade">
                                     {% trans %}Prioridade{% endtrans %}
                                 </button>
                             {% endif %}
@@ -144,15 +144,18 @@
                     <div class="modal-body">
                         <h4>{% trans %}Exibir serviços{% endtrans %}</h4>
                         <div class="row exibir-servicos">
-                            {% for servicoUnidade in servicos %}
-                                <div class="col-sm-6">
+                            <div class="col-sm-6" v-for="su in servicos">
+                                <div class="triagem-servico col-md-6">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" class="servico-{{ servicoUnidade.servico.id }}" value="{{ servicoUnidade.servico.id }}" checked> {{ servicoUnidade.sigla }} - {{ servicoUnidade.servico.nome }}
+                                            <input type="checkbox" v-bind:value="su" v-model="servicosHabilitados" v-on:change="saveConfig"> 
+                                            {% verbatim %}
+                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                            {% endverbatim %}
                                         </label>
                                     </div>
                                 </div>
-                            {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -177,7 +180,7 @@
                                     {%- endverbatim -%}
                                 </span>
                                 <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" 
-                                        v-on:click="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
+                                        v-on:click.prevent="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
                                     <span class="glyphicon glyphicon-print"></span>
                                 </button>
                             </p>
@@ -237,7 +240,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" v-on:click="distribuiSenhaPrioritaria">
+                        <button type="button" class="btn btn-primary" v-on:click.prevent="distribuiSenhaPrioritaria">
                             {% trans %}Gerar prioridade{% endtrans %}
                         </button>
                     </div>

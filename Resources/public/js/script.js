@@ -10,7 +10,7 @@
         iframe: 'frame-impressao',
         
         url: function(atendimento) {
-            return App.url('/novosga.triagem/imprimir') + "?id=" + atendimento.id;
+            return App.url('/novosga.triagem/imprimir/') + atendimento.id;
         },
         
         imprimir: function(atendimento) {
@@ -41,7 +41,7 @@
             prioridade: 0,
             search: '',
             searchResult: [],
-            desabilitados: []
+            servicosHabilitados: [],
         },
         methods: {
             ajaxUpdate: function() {
@@ -167,6 +167,13 @@
                     }
                 });
             },
+            
+            saveConfig: function () {
+                var ids = this.servicosHabilitados.map(function (servicoUnidade) {
+                    return servicoUnidade.servico.id;
+                });
+                App.Storage.set('novosga.triagem.habilitados', JSON.stringify(ids));
+            },
 
             init: function () {
                 var self = this;
@@ -184,7 +191,21 @@
                     self.servicoIds.push(su.servico.id);
                 });
 
-                this.desabilitados = JSON.parse(App.Storage.get('novosga.triagem.desabilitados') || '[]');
+                this.servicosHabilitados = [];
+                try {
+                    var json = App.Storage.get('novosga.triagem.habilitados') || '[]',
+                        ids = JSON.parse(json);
+                
+                    self.servicosHabilitados = this.servicos.filter(function (servicoUnidade) {
+                        for (var  i = 0; i < ids.length; i++) {
+                            if (servicoUnidade.servico.id === ids[i]) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                } catch (e) {
+                }
 
                 this.ajaxUpdate();
             }
