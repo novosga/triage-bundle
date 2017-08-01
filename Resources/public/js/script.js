@@ -2,18 +2,18 @@
  * Novo SGA - Triagem
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-(function() {
+(function () {
     'use strict'
     
     var Impressao = {
         
         iframe: 'frame-impressao',
         
-        url: function(atendimento) {
-            return App.url('/novosga.triagem/imprimir') + "?id=" + atendimento.id;
+        url: function (atendimento) {
+            return App.url('/novosga.triagem/imprimir/') + atendimento.id;
         },
         
-        imprimir: function(atendimento) {
+        imprimir: function (atendimento) {
             var iframe = document.getElementById(this.iframe);
             if (iframe) {
                 iframe.src = this.url(atendimento);
@@ -44,7 +44,7 @@
             desabilitados: []
         },
         methods: {
-            ajaxUpdate: function() {
+            ajaxUpdate: function () {
                 var self = this;
                 clearTimeout(self.timeoutId);
 
@@ -68,13 +68,13 @@
                 }
             },
 
-            print: function(atendimento) {
+            print: function (atendimento) {
                 if (this.imprimir) {
                     Impressao.imprimir(atendimento);
                 }
             },
 
-            showServicoInfo: function(servico) {
+            showServicoInfo: function (servico) {
                 var self = this;
 
                 App.ajax({
@@ -82,14 +82,14 @@
                     data: {
                         id: servico
                     },
-                    success: function(response) {
+                    success: function (response) {
                         self.servicoInfo = response.data;
                         $('#dialog-servico').modal('show');
                     }
                 });
             },
 
-            showPrioridades: function(servicoId) {
+            showPrioridades: function (servicoId) {
                 if (this.prioridades.length === 1) {
                     // se so tiver uma prioridade, emite a senha direto
                     this.distribuiSenha(servicoId, this.prioridades[0]);
@@ -99,11 +99,11 @@
                 }
             },
 
-            distribuiSenhaNormal: function(servico) {
+            distribuiSenhaNormal: function (servico) {
                 this.distribuiSenha(servico, 1);
             },
 
-            distribuiSenhaPrioritaria: function() {
+            distribuiSenhaPrioritaria: function () {
                 if (!this.prioridade || !this.servico) {
                     return;
                 }
@@ -113,7 +113,7 @@
                 $('#dialog-prioridade').modal('hide');
             },
 
-            distribuiSenha: function(servico, prioridade) {
+            distribuiSenha: function (servico, prioridade) {
                 var self = this;
                 var defer = $.Deferred();
 
@@ -132,18 +132,18 @@
                         url: App.url('/api/distribui'),
                         type: 'post',
                         data: JSON.stringify(data),
-                        success: function(response) {
+                        success: function (response) {
                             self.atendimento = response;
                             self.print(self.atendimento);
 
                             $('#dialog-senha').modal('show');
 
                             defer.resolve(self.atendimento);
-                        }, 
-                        error: function() {
+                        },
+                        error: function () {
                             defer.reject();
                         },
-                        complete: function() {
+                        complete: function () {
                             self.pausado = false;
                         }
                     });
@@ -154,7 +154,7 @@
                 return defer.promise();
             },
 
-            consultar: function() {
+            consultar: function () {
                 var self = this;
 
                 App.ajax({
@@ -162,7 +162,7 @@
                     data: {
                         numero: self.search
                     },
-                    success: function(response) {
+                    success: function (response) {
                         self.searchResult = response.data;
                     }
                 });

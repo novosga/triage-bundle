@@ -1,11 +1,18 @@
-{% extends "base.html.twig" %}
+{% extends "NovosgaTriagemBundle::base.html.twig" %}
 
 {% block body %}
-    <h1>
-        <i class="fa fa-print" aria-hidden="true"></i>
-        {% trans %}Triagem{% endtrans %}
-        <small>{% trans %}Emissão de senhas{% endtrans %}</small>
-    </h1>
+    <div class="row">
+        <div class="col-sm-12">
+            <h1>
+                <i class="fa fa-print" aria-hidden="true"></i>
+                {% trans %}Triagem{% endtrans %}
+                <small>{% trans %}Emissão de senhas{% endtrans %}</small>
+            </h1>
+        </div>
+    </div>
+    
+    <hr>
+    
     <div id="triagem" v-cloak>
         <div id="infobar" class="row">
             <div class="col-md-10 col-xs-9">

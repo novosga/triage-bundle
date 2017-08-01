@@ -34,7 +34,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/", name="novosga_triagem_index")
      */
     public function indexAction(Request $request)
@@ -44,7 +44,7 @@ class DefaultController extends Controller
         $unidade = $usuario->getLotacao()->getUnidade();
         
         $prioridades = $em->getRepository(\Novosga\Entity\Prioridade::class)->findAtivas();
-        $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.status = 1');
+        $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.ativo = TRUE');
         
         return $this->render('NovosgaTriagemBundle:default:index.html.twig', [
             'unidade' => $unidade,
@@ -56,7 +56,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/imprimir/{id}", name="novosga_triagem_print")
      */
     public function imprimirAction(Request $request, Atendimento $atendimento)
@@ -70,7 +70,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/ajax_update", name="novosga_triagem_ajax_update")
      */
     public function ajaxUpdateAction(Request $request)
@@ -132,7 +132,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/servico_info", name="novosga_triagem_servico_info")
      */
     public function servicoInfoAction(Request $request)
@@ -190,7 +190,7 @@ class DefaultController extends Controller
     /**
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/distribui_senha", name="novosga_triagem_distribui_senha")
      * @Method("POST")
      */
@@ -219,10 +219,10 @@ class DefaultController extends Controller
 
     /**
      * Busca os atendimentos a partir do número da senha.
-     * 
+     *
      * @param Request $request
      * @return Response
-     * 
+     *
      * @Route("/consulta_senha", name="novosga_triagem_consulta_senha")
      */
     public function consultaSenhaAction(Request $request)
