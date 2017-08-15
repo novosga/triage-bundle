@@ -149,31 +149,35 @@
                         <h4 class="modal-title">{% trans %}Configuração{% endtrans %}</h4>
                     </div>
                     <div class="modal-body">
-                        <h4>{% trans %}Impressão{% endtrans %}</h4>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
-                                        {% trans %}Habilitar impressão{% endtrans %}
-                                    </label>
+                        <fieldset>
+                            <legend>{% trans %}Impressão{% endtrans %}</legend>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
+                                            {% trans %}Habilitar impressão{% endtrans %}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </fieldset>
                         
-                        <h4>{% trans %}Serviços{% endtrans %}</h4>
-                        <div class="row">
-                            <div class="col-sm-6" v-for="su in servicos">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" v-bind:value="su" v-model="config.servicosHabilitados" v-on:change="saveConfig"> 
-                                        {% verbatim %}
-                                            {{ su.sigla }} - {{ su.servico.nome }}
-                                        {% endverbatim %}
-                                    </label>
+                        <fieldset>
+                            <legend>{% trans %}Serviços{% endtrans %}</legend>
+                            <div class="row">
+                                <div class="col-sm-6" v-for="su in servicos">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" v-bind:value="su" v-model="config.servicosHabilitados" v-on:change="saveConfig"> 
+                                            {% verbatim %}
+                                                {{ su.sigla }} - {{ su.servico.nome }}
+                                            {% endverbatim %}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </fieldset>
                     </div>
                 </div>
             </div>
@@ -181,56 +185,69 @@
 
         {# dialog para exibir informacoes do servico #}
         <div id="dialog-servico" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
                     </div>
                     <div class="modal-body" v-if="servicoInfo">
-                        <div>
-                            <h4>{% trans %}Última senha{% endtrans %}</h4>
-                            <p class="ultima-senha">
-                                <span>
-                                    {%- verbatim -%}
-                                        {{servicoInfo.senha}}
-                                    {%- endverbatim -%}
-                                </span>
-                                <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" 
-                                        v-on:click.prevent="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
-                                    <span class="glyphicon glyphicon-print"></span>
-                                </button>
-                            </p>
-                        </div>
-                        <div>
-                            <h4>{% trans %}Nome original do serviço{% endtrans %}</h4>
-                            <p class="nome">
-                                {%- verbatim -%}
-                                    {{servicoInfo.nome}}
-                                {%- endverbatim -%}
-                            </p>
-                        </div>
-                        <div>
-                            <h4>{% trans %}Descrição{% endtrans %}</h4>
-                            <p class="descricao">
-                                {%- verbatim -%}
-                                    {{servicoInfo.descricao}}
-                                {%- endverbatim -%}
-                            </p>
-                        </div>
-                        <div>
-                            <h4>{% trans %}Subserviços{% endtrans %}</h4>
-                            <ul class="subservicos notempty" v-if="servicoInfo.subservicos.length">
-                                <li v-for="servico in servicoInfo.subservicos">
-                                    {%- verbatim -%}
-                                        {{servico}}
-                                    {%- endverbatim -%}
-                                </li>
-                            </ul>
-                            <ul class="subservicos empty" v-if="!servicoInfo.subservicos.length">
-                                <li>{% trans %}Não há subserviços{% endtrans %}</li>
-                            </ul>
-                        </div>
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        {% trans %}Nome{% endtrans %}
+                                    </th>
+                                    <td>
+                                        {%- verbatim -%}
+                                            {{servicoInfo.nome}}
+                                        {%- endverbatim -%}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {% trans %}Última senha{% endtrans %}
+                                    </th>
+                                    <td>
+                                        <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" 
+                                                v-on:click.prevent="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
+                                            {%- verbatim -%}
+                                                {{servicoInfo.senha}}
+                                            {%- endverbatim -%}
+                                            &nbsp;
+                                            <span class="glyphicon glyphicon-print"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {% trans %}Descrição{% endtrans %}
+                                    </th>
+                                    <td>
+                                        {%- verbatim -%}
+                                            {{servicoInfo.descricao}}
+                                        {%- endverbatim -%}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {% trans %}Subserviços{% endtrans %}
+                                    </th>
+                                    <td>
+                                        <ul class="subservicos notempty" v-if="servicoInfo.subservicos.length">
+                                            <li v-for="servico in servicoInfo.subservicos">
+                                                {%- verbatim -%}
+                                                    {{servico}}
+                                                {%- endverbatim -%}
+                                            </li>
+                                        </ul>
+                                        <ul class="subservicos empty" v-if="!servicoInfo.subservicos.length">
+                                            <li>{% trans %}Não há subserviços{% endtrans %}</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
