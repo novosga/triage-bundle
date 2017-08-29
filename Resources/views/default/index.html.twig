@@ -15,9 +15,9 @@
     
     <div id="triagem" v-cloak>
         <div id="infobar" class="row">
-            <div class="col-md-10 col-xs-9">
-                <form role="form" onsubmit="return false">
-                    <div class="col-xs-6">
+            <div class="col-md-10 col-9">
+                <div class="row">
+                    <div class="col-6">
                         <div class="input-group">
                             <span class="input-group-addon" id="basic-addon1">
                                 <i class="fa fa-user"></i>
@@ -26,7 +26,7 @@
                             <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{% trans %}Nome{% endtrans %}" v-model="cliente.nome" />
                         </div>
                     </div>
-                    <div class="col-xs-6">
+                    <div class="col-6">
                         <div class="input-group">
                             <span class="input-group-addon" id="basic-addon1">
                                 <i class="fa fa-credit-card"></i>
@@ -35,12 +35,12 @@
                             <input type="text" id="cliente-documento" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" />
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
-            <div class="col-md-2 col-xs-3">
+            <div class="col-md-2 col-3">
                 <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}" v-if="ultimaSenha">
                     <span class="label label-default" ng-class="{ 'label-default': ultimaSenha.prioridade==0, 'label-danger': ultimaSenha.prioridade.peso>0 }">
-                        <span class="glyphicon glyphicon-print"></span>&nbsp;
+                        <i class="fa fa-print"></i>&nbsp;
                         {%- verbatim -%}
                             {{ultimaSenha.senha.format}}
                         {%- endverbatim -%}
@@ -51,8 +51,8 @@
 
         <div id="triagem-servicos" class="row">
             <div class="triagem-servico col-md-6" v-for="su in config.servicosHabilitados">
-                <div class="panel panel-default">
-                    <div class="panel-body">
+                <div class="card">
+                    <div class="card-body">
                         <a href="#" v-on:click.prevent="showServicoInfo(su.servico.id)">
                             {%- verbatim -%}
                                 {{su.sigla}} - {{su.servico.nome}}
@@ -89,12 +89,12 @@
             </p>
         </div>
         <p class="links">
-            <a href="#dialog-busca" class="btn btn-default" data-toggle="modal">
-                <span class="glyphicon glyphicon-search"></span>&nbsp;
+            <a href="#dialog-busca" class="btn btn-secondary" data-toggle="modal">
+                <i class="fa fa-search"></i>&nbsp;
                 {% trans %}Consultar senha{% endtrans %}
             </a>
-            <a href="#dialog-triagem-config" class="btn btn-default" data-toggle="modal">
-                <span class="glyphicon glyphicon-cog"></span>&nbsp;
+            <a href="#dialog-triagem-config" class="btn btn-secondary" data-toggle="modal">
+                <i class="fa fa-cog"></i>&nbsp;
                 {% trans %}Configuração{% endtrans %}
             </a>
         </p>
@@ -107,8 +107,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title">{% trans %}Senha|Bilhete{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{% trans %}Senha|Bilhete{% endtrans %}</h4>
                     </div>
                     <div class="modal-body" v-if="atendimento">
                         <div class="field">
@@ -145,8 +145,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title">{% trans %}Configuração{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{% trans %}Configuração{% endtrans %}</h4>
                     </div>
                     <div class="modal-body">
                         <fieldset>
@@ -188,8 +188,8 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title">{% trans %}Serviço{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{% trans %}Serviço{% endtrans %}</h4>
                     </div>
                     <div class="modal-body" v-if="servicoInfo">
                         <table class="table table-bordered">
@@ -209,13 +209,13 @@
                                         {% trans %}Última senha{% endtrans %}
                                     </th>
                                     <td>
-                                        <button class="btn btn-default" title="{% trans %}Reimprimir{% endtrans %}" 
+                                        <button class="btn btn-secondary" title="{% trans %}Reimprimir{% endtrans %}" 
                                                 v-on:click.prevent="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
                                             {%- verbatim -%}
                                                 {{servicoInfo.senha}}
                                             {%- endverbatim -%}
                                             &nbsp;
-                                            <span class="glyphicon glyphicon-print"></span>
+                                            <i class="fa fa-print"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -258,8 +258,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title">{% trans %}Prioridade{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{% trans %}Prioridade{% endtrans %}</h4>
                     </div>
                     <div class="modal-body">
                         <ul>
@@ -287,8 +287,8 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title">{% trans %}Busca{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">{% trans %}Busca{% endtrans %}</h4>
                     </div>
                     <div class="modal-body">
                         <form class="form-inline" role="form" v-on:submit.prevent="consultar">
