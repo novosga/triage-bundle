@@ -115,10 +115,11 @@ class DefaultController extends Controller
                     $senhas[$r['id']]['fila'] = $r['total'];
                 }
 
-                $service = new AtendimentoService($em);
+                /* @var $atendimentoService \Novosga\Service\AtendimentoService */
+                $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
 
                 $data = [
-                    'ultima'   => $service->ultimaSenhaUnidade($unidade),
+                    'ultima'   => $atendimentoService->ultimaSenhaUnidade($unidade),
                     'servicos' => $senhas,
                 ];
                 
@@ -154,8 +155,9 @@ class DefaultController extends Controller
             ];
 
             // ultima senha
-            $service = new AtendimentoService($em);
-            $atendimento = $service->ultimaSenhaServico($unidade, $servico);
+            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
+            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
+            $atendimento = $atendimentoService->ultimaSenhaServico($unidade, $servico);
             if ($atendimento) {
                 $data['senha'] = $atendimento->getSenha()->__toString();
                 $data['senhaId'] = $atendimento->getId();
@@ -207,8 +209,9 @@ class DefaultController extends Controller
         $nomeCliente = $request->get('cli_nome', '');
         $documentoCliente = $request->get('cli_doc', '');
         try {
-            $service = new AtendimentoService($em);
-            $data = $service->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
+            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
+            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
+            $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
             $envelope->setData($data);
         } catch (Exception $e) {
             $envelope->exception($e);
@@ -239,8 +242,9 @@ class DefaultController extends Controller
             }
             
             $numero = $request->get('numero');
-            $service = new AtendimentoService($em);
-            $atendimentos = $service->buscaAtendimentos($unidade, $numero);
+            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
+            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
+            $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
             $envelope->setData($atendimentos);
         } catch (Exception $e) {
             $envelope->exception($e);
