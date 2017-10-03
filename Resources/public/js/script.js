@@ -46,28 +46,56 @@
             }
         },
         methods: {
-            ajaxUpdate: function () {
+            init: function () {
                 var self = this;
-                clearTimeout(self.timeoutId);
+                
+                App.Websocket.connect();
 
-                if (!App.paused) {
+                App.Websocket.on('new ticket', function () {
+                    console.log('new ticket');
+                    this.update();
+                });
 
-                    App.ajax({
-                        url: App.url('/novosga.triagem/ajax_update'),
-                        data: {
-                            ids: self.servicoIds.join(',')
-                        },
-                        success: function (response) {
-                            self.totais = response.data.servicos;
-                            self.ultimaSenha = response.data.ultima;
-                        },
-                        complete: function () {
-                            self.timeoutId = setTimeout(self.ajaxUpdate, App.updateInterval);
-                        }
+                App.Websocket.on('connect', function () {
+                    console.log('connected!');
+                    App.Websocket.emit('register user', {
+                        unidade: self.unidade.id
                     });
-                } else {
-                    self.timeoutId = setTimeout(self.ajaxUpdate, App.updateInterval);
-                }
+                });
+                
+                App.Websocket.on('disconnect', function () {
+                    console.log('disconnected!');
+                });
+
+                App.Websocket.on('error', function () {
+                    console.log('error');
+                });
+
+                App.Websocket.on('register ok', function () {
+                    console.log('registered!');
+                });
+
+                this.servicos.forEach(function (su) {
+                    self.servicoIds.push(su.servico.id);
+                });
+
+                this.loadConfig();
+                
+                this.update();
+            },
+            
+            update: function () {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.triagem/ajax_update'),
+                    data: {
+                        ids: self.servicoIds.join(',')
+                    },
+                    success: function (response) {
+                        self.totais = response.data.servicos;
+                        self.ultimaSenha = response.data.ultima;
+                    }
+                });
             },
 
             print: function (atendimento) {
@@ -127,7 +155,7 @@
                         servico: servico,
                         prioridade: prioridade,
                         cliente: self.cliente,
-                        unidade: self.unidade
+                        unidade: self.unidade.id
                     };
 
                     $.ajax({
@@ -139,6 +167,10 @@
                             self.print(self.atendimento);
 
                             $('#dialog-senha').modal('show');
+                            
+                            App.Websocket.emit('new ticket', {
+                                unidade: self.unidade.id
+                            });
 
                             defer.resolve(self.atendimento);
                         },
@@ -202,27 +234,6 @@
                     this.config.imprimir = true;
                     this.config.servicosHabilitados = this.servicos;
                 }
-            },
-
-            init: function () {
-                var self = this;
-                //App.Websocket.connect();
-
-                App.Websocket.on('new ticket', function () {
-                    console.log('new ticket');
-                });
-
-                App.Websocket.on('connect', function () {
-                    clearTimeout(self.timeoutId);
-                });
-
-                this.servicos.forEach(function (su) {
-                    self.servicoIds.push(su.servico.id);
-                });
-
-                this.loadConfig();
-
-                this.ajaxUpdate();
             }
         }
     });

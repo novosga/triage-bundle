@@ -61,7 +61,7 @@ class DefaultController extends Controller
      */
     public function imprimirAction(Request $request, Atendimento $atendimento)
     {
-        $service = $this->get('novosga.ticket_service');
+        $service = $this->get('App\Service\TicketService');
         $html = $service->printTicket($atendimento);
 
         return new Response($html);
