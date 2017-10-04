@@ -29,7 +29,7 @@
             timeoutId: null,
             servicos: (servicos || []),
             prioridades: (prioridades || []),
-            unidade: unidade,
+            unidade: (unidade || {}),
             cliente: {},
             ultimaSenha: null,
             servicoInfo: null,
@@ -122,7 +122,7 @@
             showPrioridades: function (servicoId) {
                 if (this.prioridades.length === 1) {
                     // se so tiver uma prioridade, emite a senha direto
-                    this.distribuiSenha(servicoId, this.prioridades[0]);
+                    this.distribuiSenha(servicoId, this.prioridades[0].id);
                 } else {
                     this.servico = servicoId;
                     $('#dialog-prioridade').modal('show');
@@ -138,7 +138,7 @@
                     return;
                 }
 
-                this.distribuiSenha(this.servico, this.prioridade);
+                this.distribuiSenha(this.servico, this.prioridade.id);
 
                 $('#dialog-prioridade').modal('hide');
             },
