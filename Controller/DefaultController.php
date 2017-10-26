@@ -12,13 +12,14 @@
 namespace Novosga\TriagemBundle\Controller;
 
 use Exception;
-use Novosga\Entity\Servico;
 use Novosga\Entity\Atendimento;
+use Novosga\Entity\Prioridade;
+use Novosga\Entity\Servico;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,7 +44,7 @@ class DefaultController extends Controller
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $prioridades = $em->getRepository(\Novosga\Entity\Prioridade::class)->findAtivas();
+        $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
         $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.ativo = TRUE');
         
         return $this->render('@NovosgaTriagem/default/index.html.twig', [
@@ -73,7 +74,7 @@ class DefaultController extends Controller
      *
      * @Route("/ajax_update", name="novosga_triagem_ajax_update")
      */
-    public function ajaxUpdateAction(Request $request)
+    public function ajaxUpdateAction(Request $request, AtendimentoService $atendimentoService)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -115,9 +116,6 @@ class DefaultController extends Controller
                     $senhas[$r['id']]['fila'] = $r['total'];
                 }
 
-                /* @var $atendimentoService \Novosga\Service\AtendimentoService */
-                $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
-
                 $data = [
                     'ultima'   => $atendimentoService->ultimaSenhaUnidade($unidade),
                     'servicos' => $senhas,
@@ -136,7 +134,7 @@ class DefaultController extends Controller
      *
      * @Route("/servico_info", name="novosga_triagem_servico_info")
      */
-    public function servicoInfoAction(Request $request)
+    public function servicoInfoAction(Request $request, AtendimentoService $atendimentoService)
     {
         $em = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
@@ -144,47 +142,43 @@ class DefaultController extends Controller
         
         $envelope = new Envelope();
         $id = (int) $request->get('id');
-        try {
-            $servico = $em->find(Servico::class, $id);
-            if (!$servico) {
-                throw new Exception(_('Serviço inválido'));
-            }
-            $data = [
-                'nome' => $servico->getNome(),
-                'descricao' => $servico->getDescricao()
-            ];
-
-            // ultima senha
-            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
-            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
-            $atendimento = $atendimentoService->ultimaSenhaServico($unidade, $servico);
-            if ($atendimento) {
-                $data['senha'] = $atendimento->getSenha()->__toString();
-                $data['senhaId'] = $atendimento->getId();
-            } else {
-                $data['senha'] = '-';
-                $data['senhaId'] = '';
-            }
-            // subservicos
-            $data['subservicos'] = [];
-            $subservicos = $em
-                        ->createQueryBuilder()
-                        ->select('e')
-                        ->from(Servico::class, 'e')
-                        ->where('e.mestre = :mestre')
-                        ->orderBy('e.nome', 'ASC')
-                        ->setParameter('mestre', $servico->getId())
-                        ->getQuery()
-                        ->getResult();
-            
-            foreach ($subservicos as $s) {
-                $data['subservicos'][] = $s->getNome();
-            }
-            
-            $envelope->setData($data);
-        } catch (Exception $e) {
-            $envelope->exception($e);
+        
+        $servico = $em->find(Servico::class, $id);
+        if (!$servico) {
+            throw new Exception(_('Serviço inválido'));
         }
+        $data = [
+            'nome' => $servico->getNome(),
+            'descricao' => $servico->getDescricao()
+        ];
+
+        // ultima senha
+        $atendimento = $atendimentoService->ultimaSenhaServico($unidade, $servico);
+        
+        if ($atendimento) {
+            $data['senha'] = $atendimento->getSenha()->__toString();
+            $data['senhaId'] = $atendimento->getId();
+        } else {
+            $data['senha'] = '-';
+            $data['senhaId'] = '';
+        }
+        // subservicos
+        $data['subservicos'] = [];
+        $subservicos = $em
+                    ->createQueryBuilder()
+                    ->select('e')
+                    ->from(Servico::class, 'e')
+                    ->where('e.mestre = :mestre')
+                    ->orderBy('e.nome', 'ASC')
+                    ->setParameter('mestre', $servico->getId())
+                    ->getQuery()
+                    ->getResult();
+
+        foreach ($subservicos as $s) {
+            $data['subservicos'][] = $s->getNome();
+        }
+
+        $envelope->setData($data);
 
         return $this->json($envelope);
     }
@@ -196,7 +190,7 @@ class DefaultController extends Controller
      * @Route("/distribui_senha", name="novosga_triagem_distribui_senha")
      * @Method("POST")
      */
-    public function distribuiSenhaAction(Request $request)
+    public function distribuiSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -208,14 +202,9 @@ class DefaultController extends Controller
         $prioridade = (int) $request->get('prioridade');
         $nomeCliente = $request->get('cli_nome', '');
         $documentoCliente = $request->get('cli_doc', '');
-        try {
-            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
-            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
-            $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
-            $envelope->setData($data);
-        } catch (Exception $e) {
-            $envelope->exception($e);
-        }
+        
+        $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
+        $envelope->setData($data);
 
         return $this->json($envelope);
     }
@@ -228,27 +217,19 @@ class DefaultController extends Controller
      *
      * @Route("/consulta_senha", name="novosga_triagem_consulta_senha")
      */
-    public function consultaSenhaAction(Request $request)
+    public function consultaSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
-        $em = $this->getDoctrine()->getManager();
-        
         $envelope = new Envelope();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        try {
-            if (!$unidade) {
-                throw new Exception(_('Nenhuma unidade selecionada'));
-            }
-            
-            $numero = $request->get('numero');
-            /* @var $atendimentoService \Novosga\Service\AtendimentoService */
-            $atendimentoService = $this->get('Novosga\Service\AtendimentoService');
-            $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
-            $envelope->setData($atendimentos);
-        } catch (Exception $e) {
-            $envelope->exception($e);
+        if (!$unidade) {
+            throw new Exception(_('Nenhuma unidade selecionada'));
         }
+
+        $numero = $request->get('numero');
+        $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
+        $envelope->setData($atendimentos);
 
         return $this->json($envelope);
     }
