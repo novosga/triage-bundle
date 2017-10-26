@@ -284,21 +284,26 @@
 
         {# busca #}
         <div id="dialog-busca" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{% trans %}Busca{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <form class="form-inline" role="form" v-on:submit.prevent="consultar">
-                            <div class="form-group">
-                                <input type="text" maxlength="10" class="form-search form-control" placeholder="{% trans %}Número{% endtrans %}" v-model="search">
+                        <form class="row" role="form" v-on:submit.prevent="consultar">
+                            <div class="col-3">
+                                <div class="input-group">
+                                    <input type="text" maxlength="10" class="form-search form-control" placeholder="{% trans %}Senha completa, sigla ou número{% endtrans %}" v-model="search">
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-primary" title="{% trans %}Consultar{% endtrans %}">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">
-                                {% trans %}Consultar{% endtrans %}
-                            </button>
                         </form>
+                        <hr>
                         <div class="result">
                             <table class="table">
                                 <thead>
@@ -315,30 +320,36 @@
                                 </thead>
                                 <tbody>
                                     {% verbatim %}
-                                        <tr v-for="a in searchResult">
+                                        <tr v-for="atendimento in searchResult">
                                             <td>
-                                                {{a.senha.format}}
+                                                {{atendimento.senha.format}}
                                             </td>
                                             <td>
-                                                {{a.servico.nome}}
+                                                {{atendimento.servico.nome}}
                                             </td>
                                             <td>
-                                                {{a.chegada}}
+                                                <span v-if="atendimento.chegada">
+                                                    {{moment(atendimento.chegada, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                </span>
                                             </td>
                                             <td>
-                                                {{a.inicio}}
+                                                <span v-if="atendimento.inicio">
+                                                    {{moment(atendimento.inicio, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                </span>
                                             </td>
                                             <td>
-                                                {{a.fim}}
+                                                <span v-if="atendimento.fim">
+                                                    {{moment(atendimento.fim, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                </span>
                                             </td>
                                             <td>
-                                                {{a.triagem}}
+                                                {{atendimento.triagem}}
                                             </td>
                                             <td>
-                                                {{a.usuario}}
+                                                {{atendimento.usuario}}
                                             </td>
                                             <td>
-                                                {{a.status}}
+                                                {{atendimento.status}}
                                             </td>
                                         </tr>
                                     {% endverbatim %}

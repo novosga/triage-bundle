@@ -2,6 +2,9 @@
  * Novo SGA - Triagem
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
+body>section {
+    padding: 20px 10px;
+}
  
 #infobar {
     padding-top: 10px;
@@ -71,7 +74,7 @@ p.links a {
 }
 
 #dialog-busca .modal-dialog {
-    width: 90%;
+    max-width: 90%;
 }
 
 
