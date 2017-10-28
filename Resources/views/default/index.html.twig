@@ -58,18 +58,14 @@
                                 {{su.sigla}} - {{su.servico.nome}}
                             {%- endverbatim -%}
                         </a>
-                        <span class="badge">
-                            <abbr class="total" title="{% trans %}Aguardando atendimento{% endtrans %}">
-                                {%- verbatim -%}
-                                    {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
-                                {%- endverbatim -%}
-                            </abbr>
+                        <span class="badge badge-pill badge-secondary" title="{% trans %}Aguardando atendimento{% endtrans %} / {% trans %}Total de senhas do serviço{% endtrans %}">
+                            {%- verbatim -%}
+                                {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
+                            {%- endverbatim -%}
                             &nbsp;/&nbsp;
-                            <abbr class="total" title="{% trans %}Total de senhas do serviço{% endtrans %}">
-                                {%- verbatim -%}
-                                    {{totais[su.servico.id] ? totais[su.servico.id].total : '-'}}
-                                {%- endverbatim -%}
-                            </abbr>
+                            {%- verbatim -%}
+                                {{totais[su.servico.id] ? totais[su.servico.id].total : '-'}}
+                            {%- endverbatim -%}
                         </span>
                         <span class="buttons pull-right">
                             <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click.prevent="distribuiSenhaNormal(su.servico.id)">
