@@ -17,22 +17,27 @@
         <div id="infobar" class="row">
             <div class="col-md-10 col-9">
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-3">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">
+                                <i class="fa fa-credit-card"></i>
+                            </span>
+                            <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
+                            <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" 
+                                   v-on:input="fetchClients"
+                                   v-on:change="changeClient">
+                            <datalist id="documentos">
+                                <option v-for="cliente in clientes" v-bind:value="cliente.documento">
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="col-9">
                         <div class="input-group">
                             <span class="input-group-addon" id="basic-addon1">
                                 <i class="fa fa-user"></i>
                             </span>
                             <label for="cliente-nome" class="sr-only">{% trans %}Nome{% endtrans %}</label>
                             <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{% trans %}Nome{% endtrans %}" v-model="cliente.nome" />
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">
-                                <i class="fa fa-credit-card"></i>
-                            </span>
-                            <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
-                            <input type="text" id="cliente-documento" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" />
                         </div>
                     </div>
                 </div>
@@ -371,5 +376,6 @@
             prioridades = {{ prioridades|json_encode()|raw}},
             unidade     = {{ unidade|json_encode()|raw }};
     </script>
+    <script type="text/javascript" src="{{ asset('bundles/novosgatriagem/js/lodash.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriagem/js/script.js') }}"></script>
 {% endblock %}

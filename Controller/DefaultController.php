@@ -235,6 +235,29 @@ class DefaultController extends Controller
     }
 
     /**
+     * Busca os clientes a partir do documento.
+     *
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/clientes", name="novosga_triagem_clientes")
+     */
+    public function clientesAction(Request $request)
+    {
+        $envelope  = new Envelope();
+        $documento = $request->get('q');
+        $clientes  = $this
+                ->getDoctrine()
+                ->getManager()
+                ->getRepository(\Novosga\Entity\Cliente::class)
+                ->findByDocumento("{$documento}%");
+        
+        $envelope->setData($clientes);
+
+        return $this->json($envelope);
+    }
+
+    /**
      * @return ServicoService
      */
     private function getServicoService()

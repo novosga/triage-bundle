@@ -30,7 +30,10 @@
             servicos: (servicos || []),
             prioridades: (prioridades || []),
             unidade: (unidade || {}),
-            cliente: {},
+            cliente: {
+                nome: '',
+                documento: ''
+            },
             ultimaSenha: null,
             servicoInfo: null,
             atendimento: null,
@@ -43,7 +46,8 @@
             config: {
                 imppressao: true,
                 servicosHabilitados: [],
-            }
+            },
+            clientes: []
         },
         methods: {
             init: function () {
@@ -232,6 +236,30 @@
                 } catch (e) {
                     this.config.imprimir = true;
                     this.config.servicosHabilitados = this.servicos;
+                }
+            },
+            
+            fetchClients: _.debounce(function () {
+                var self = this;
+                App.ajax({
+                    url: App.url('/novosga.triagem/clientes'),
+                    data: {
+                        q: self.cliente.documento
+                    },
+                    success: function (response) {
+                        self.clientes = response.data;
+                    }
+                })
+            }, 250),
+            
+            changeClient: function () {
+                this.cliente.nome = '';
+                for (var i in this.clientes) {
+                    var c = this.clientes[i];
+                    if (c.documento === this.cliente.documento) {
+                        this.cliente.nome = c.nome;
+                        break;
+                    }
                 }
             }
         }
