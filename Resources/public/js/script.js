@@ -161,11 +161,11 @@
                     };
 
                     $.ajax({
-                        url: App.url('/api/distribui'),
+                        url: App.url('/novosga.triagem/distribui_senha'),
                         type: 'post',
-                        data: JSON.stringify(data),
+                        data: data,
                         success: function (response) {
-                            self.atendimento = response;
+                            self.atendimento = response.data;
                             self.print(self.atendimento);
 
                             $('#dialog-senha').modal('show');
