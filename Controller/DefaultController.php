@@ -13,6 +13,7 @@ namespace Novosga\TriagemBundle\Controller;
 
 use Exception;
 use Novosga\Entity\Atendimento;
+use Novosga\Entity\Cliente;
 use Novosga\Entity\Prioridade;
 use Novosga\Entity\Servico;
 use Novosga\Http\Envelope;
@@ -192,18 +193,21 @@ class DefaultController extends Controller
      */
     public function distribuiSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
-        $em = $this->getDoctrine()->getManager();
-        
         $envelope = new Envelope();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $servico = (int) $request->get('servico');
+        $servico    = (int) $request->get('servico');
         $prioridade = (int) $request->get('prioridade');
-        $nomeCliente = $request->get('cli_nome', '');
-        $documentoCliente = $request->get('cli_doc', '');
+        $cli        = $request->get('cliente', []) ?? [];
+        $nome       = $cli['nome'] ?? '';
+        $documento  = $cli['documento'] ?? '';
         
-        $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $nomeCliente, $documentoCliente)->jsonSerialize();
+        $cliente = new Cliente();
+        $cliente->setNome($nome);
+        $cliente->setDocumento($documento);
+        
+        $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente);
         $envelope->setData($data);
 
         return $this->json($envelope);
