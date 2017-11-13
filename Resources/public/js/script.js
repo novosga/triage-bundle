@@ -160,7 +160,7 @@
                         unidade: self.unidade.id
                     };
 
-                    $.ajax({
+                    App.ajax({
                         url: App.url('/novosga.triagem/distribui_senha'),
                         type: 'post',
                         data: data,
