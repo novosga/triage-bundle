@@ -25,7 +25,8 @@
                             <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
                             <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" 
                                    v-on:input="fetchClients"
-                                   v-on:change="changeClient">
+                                   v-on:change="changeClient"
+                                   v-on:blur="changeClient">
                             <datalist id="documentos">
                                 <option v-for="cliente in clientes" v-bind:value="cliente.documento">
                             </datalist>
