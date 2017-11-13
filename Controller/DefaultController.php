@@ -193,19 +193,21 @@ class DefaultController extends Controller
      */
     public function distribuiSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
+        $json = json_decode($request->getContent());
+        
         $envelope = new Envelope();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $servico    = (int) $request->get('servico');
-        $prioridade = (int) $request->get('prioridade');
-        $cli        = $request->get('cliente', []) ?? [];
-        $nome       = $cli['nome'] ?? '';
-        $documento  = $cli['documento'] ?? '';
+        $servico    = (int) $json->servico;
+        $prioridade = (int) $json->prioridade;
         
-        $cliente = new Cliente();
-        $cliente->setNome($nome);
-        $cliente->setDocumento($documento);
+        $cliente = null;
+        if (is_object($json->cliente)) {
+            $cliente = new Cliente();
+            $cliente->setNome($json->cliente->nome ?? '');
+            $cliente->setDocumento($json->cliente->documento ?? '');
+        }
         
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente);
         $envelope->setData($data);
