@@ -12,6 +12,7 @@
 namespace Novosga\TriagemBundle\Controller;
 
 use Exception;
+use App\Service\TicketService;
 use Novosga\Entity\Atendimento;
 use Novosga\Entity\Cliente;
 use Novosga\Entity\Prioridade;
@@ -61,9 +62,8 @@ class DefaultController extends Controller
      *
      * @Route("/imprimir/{id}", name="novosga_triagem_print")
      */
-    public function imprimirAction(Request $request, Atendimento $atendimento)
+    public function imprimirAction(Request $request, TicketService $service, Atendimento $atendimento)
     {
-        $service = $this->get('App\Service\TicketService');
         $html = $service->printTicket($atendimento);
 
         return new Response($html);
@@ -216,6 +216,47 @@ class DefaultController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/distribui_agendamento/{id}", name="novosga_triagem_distribui_agendamento")
+     * @Method("POST")
+     */
+    public function distribuiSenhaAgendamentoAction(
+        Request $request,
+        AtendimentoService $atendimentoService,
+        \Novosga\Entity\Agendamento $agendamento
+    ) {
+        if ($agendamento->getDataConfirmacao()) {
+            throw new Exception('Agendamento já confirmado.');
+        }
+        
+        $data = $agendamento->getData()->format('Y-m-d');
+        $hora = $agendamento->getHora()->format('H:i');
+        $dt   = \DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
+        $now  = new \DateTime();
+        $diff = $now->diff($dt);
+        $mins = $diff->i + ($diff->h * 60);
+        $max  = 30;
+        
+        if ($mins > $max) {
+            throw new Exception('Agendamento expirado. Tempo máximo de espera de 30 minutos.');
+        }
+        
+        $envelope   = new Envelope();
+        $usuario    = $this->getUser();
+        $unidade    = $agendamento->getUnidade();
+        $servico    = $agendamento->getServico();
+        $prioridade = 1;
+        $cliente    = $agendamento->getCliente();
+        
+        $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente, $agendamento);
+        $envelope->setData($data);
+
+        return $this->json($envelope);
+    }
+
+    /**
      * Busca os atendimentos a partir do número da senha.
      *
      * @param Request $request
@@ -259,6 +300,38 @@ class DefaultController extends Controller
                 ->findByDocumento("{$documento}%");
         
         $envelope->setData($clientes);
+
+        return $this->json($envelope);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     *
+     * @Route("/agendamentos/{id}", name="novosga_triagem_atendamentos")
+     */
+    public function agendamentosAction(Request $request, Servico $servico)
+    {
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+        $data    = new \DateTime();
+        
+        $agendamentos = $this
+            ->getDoctrine()
+            ->getRepository(\Novosga\Entity\Agendamento::class)
+            ->findBy(
+                [
+                    'unidade' => $unidade,
+                    'servico' => $servico,
+                    'data'    => $data,
+                ], 
+                [
+                    'hora' => 'ASC'
+                ]
+            );
+        
+        $envelope = new Envelope();
+        $envelope->setData($agendamentos);
 
         return $this->json($envelope);
     }

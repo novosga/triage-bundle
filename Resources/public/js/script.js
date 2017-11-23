@@ -47,7 +47,9 @@
                 imppressao: true,
                 servicosHabilitados: [],
             },
-            clientes: []
+            clientes: [],
+            agendamentos: [],
+            servicoAgendamento: null
         },
         methods: {
             init: function () {
@@ -129,6 +131,47 @@
                     this.servico = servicoId;
                     $('#dialog-prioridade').modal('show');
                 }
+            },
+
+            loadAgendamentos: function () {
+                var self = this;
+                self.agendamentos = [];
+                
+                if (!self.servicoAgendamento) {
+                    return;
+                }
+
+                App.ajax({
+                    url: App.url('/novosga.triagem/agendamentos/') + self.servicoAgendamento,
+                    success: function (response) {
+                        self.agendamentos = response.data;
+                    }
+                });
+            },
+            
+            agendamentoConfirm: function (agendamento) {
+                var self = this;
+                
+                App.ajax({
+                    url: App.url('/novosga.triagem/distribui_agendamento/') + agendamento.id,
+                    type: 'post',
+                    success: function (response) {
+                        self.atendimento = response.data;
+                        self.print(self.atendimento);
+
+                        $('#dialog-senha').modal('show');
+
+                        App.Websocket.emit('new ticket', {
+                            unidade: self.unidade.id
+                        });
+                    },
+                    complete: function () {
+                        self.pausado = false;
+                        self.servicoAgendamento = null;
+                        self.loadAgendamentos();
+                        $('#dialog-agendamentos').modal('hide');
+                    }
+                });
             },
 
             distribuiSenhaNormal: function (servico) {
