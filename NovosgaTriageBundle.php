@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Novosga\TriagemBundle;
+namespace Novosga\TriageBundle;
 
 use Novosga\Module\BaseModule;
 
-class NovosgaTriagemBundle extends BaseModule
+class NovosgaTriageBundle extends BaseModule
 {
     public function getIconName()
     {
@@ -27,6 +27,6 @@ class NovosgaTriagemBundle extends BaseModule
 
     public function getHomeRoute()
     {
-        return 'novosga_triagem_index';
+        return 'novosga_triage_index';
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Novo SGA - Triagem
+ * Novo SGA - Triage
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
 (function () {

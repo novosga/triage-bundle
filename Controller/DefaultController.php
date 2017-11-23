@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Novosga\TriagemBundle\Controller;
+namespace Novosga\TriageBundle\Controller;
 
 use Exception;
 use App\Service\TicketService;
@@ -38,7 +38,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/", name="novosga_triagem_index")
+     * @Route("/", name="novosga_triage_index")
      */
     public function indexAction(Request $request)
     {
@@ -49,7 +49,7 @@ class DefaultController extends Controller
         $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
         $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.ativo = TRUE');
         
-        return $this->render('@NovosgaTriagem/default/index.html.twig', [
+        return $this->render('@NovosgaTriage/default/index.html.twig', [
             'unidade' => $unidade,
             'servicos' => $servicos,
             'prioridades' => $prioridades,
@@ -60,7 +60,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/imprimir/{id}", name="novosga_triagem_print")
+     * @Route("/imprimir/{id}", name="novosga_triage_print")
      */
     public function imprimirAction(Request $request, TicketService $service, Atendimento $atendimento)
     {
@@ -73,7 +73,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/ajax_update", name="novosga_triagem_ajax_update")
+     * @Route("/ajax_update", name="novosga_triage_ajax_update")
      */
     public function ajaxUpdateAction(Request $request, AtendimentoService $atendimentoService)
     {
@@ -133,7 +133,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servico_info", name="novosga_triagem_servico_info")
+     * @Route("/servico_info", name="novosga_triage_servico_info")
      */
     public function servicoInfoAction(Request $request, AtendimentoService $atendimentoService)
     {
@@ -188,7 +188,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/distribui_senha", name="novosga_triagem_distribui_senha")
+     * @Route("/distribui_senha", name="novosga_triage_distribui_senha")
      * @Method("POST")
      */
     public function distribuiSenhaAction(Request $request, AtendimentoService $atendimentoService)
@@ -219,7 +219,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/distribui_agendamento/{id}", name="novosga_triagem_distribui_agendamento")
+     * @Route("/distribui_agendamento/{id}", name="novosga_triage_distribui_agendamento")
      * @Method("POST")
      */
     public function distribuiSenhaAgendamentoAction(
@@ -262,7 +262,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/consulta_senha", name="novosga_triagem_consulta_senha")
+     * @Route("/consulta_senha", name="novosga_triage_consulta_senha")
      */
     public function consultaSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
@@ -287,7 +287,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/clientes", name="novosga_triagem_clientes")
+     * @Route("/clientes", name="novosga_triage_clientes")
      */
     public function clientesAction(Request $request)
     {
@@ -308,7 +308,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/agendamentos/{id}", name="novosga_triagem_atendamentos")
+     * @Route("/agendamentos/{id}", name="novosga_triage_atendamentos")
      */
     public function agendamentosAction(Request $request, Servico $servico)
     {

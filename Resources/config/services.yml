@@ -10,6 +10,6 @@ services:
         # if you need to do this, you can override this setting on individual services
         public: false
         
-    Novosga\TriagemBundle\Controller\:
+    Novosga\TriageBundle\Controller\:
         resource: '../../Controller'
         tags: ['controller.service_arguments']

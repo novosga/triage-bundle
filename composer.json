@@ -3,7 +3,7 @@
     "license": "MIT",
     "type": "novosga-module",
     "autoload": {
-        "psr-4": { "Novosga\\TriagemBundle\\": "" }
+        "psr-4": { "Novosga\\TriageBundle\\": "" }
     },
     "require": {
         "php": "^7.1.3",

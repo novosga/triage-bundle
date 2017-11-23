@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Novosga\TriagemBundle\DependencyInjection;
+namespace Novosga\TriageBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Loader;
 /**
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
-class NovosgaTriagemExtension extends Extension
+class NovosgaTriageExtension extends Extension
 {
     /**
      * {@inheritDoc}
