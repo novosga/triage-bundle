@@ -1,5 +1,5 @@
 {
-    "name": "novosga/triagem-bundle",
+    "name": "novosga/triage-bundle",
     "license": "MIT",
     "type": "novosga-module",
     "autoload": {
