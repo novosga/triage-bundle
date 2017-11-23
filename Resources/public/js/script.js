@@ -10,7 +10,7 @@
         iframe: 'frame-impressao',
         
         url: function (atendimento) {
-            return App.url('/novosga.triagem/imprimir/') + atendimento.id;
+            return App.url('/novosga.triage/imprimir/') + atendimento.id;
         },
         
         imprimir: function (atendimento) {
@@ -91,7 +91,7 @@
             update: function () {
                 var self = this;
                 App.ajax({
-                    url: App.url('/novosga.triagem/ajax_update'),
+                    url: App.url('/novosga.triage/ajax_update'),
                     data: {
                         ids: self.servicoIds.join(',')
                     },
@@ -112,7 +112,7 @@
                 var self = this;
 
                 App.ajax({
-                    url: App.url('/novosga.triagem/servico_info'),
+                    url: App.url('/novosga.triage/servico_info'),
                     data: {
                         id: servico
                     },
@@ -142,7 +142,7 @@
                 }
 
                 App.ajax({
-                    url: App.url('/novosga.triagem/agendamentos/') + self.servicoAgendamento,
+                    url: App.url('/novosga.triage/agendamentos/') + self.servicoAgendamento,
                     success: function (response) {
                         self.agendamentos = response.data;
                     }
@@ -153,7 +153,7 @@
                 var self = this;
                 
                 App.ajax({
-                    url: App.url('/novosga.triagem/distribui_agendamento/') + agendamento.id,
+                    url: App.url('/novosga.triage/distribui_agendamento/') + agendamento.id,
                     type: 'post',
                     success: function (response) {
                         self.atendimento = response.data;
@@ -204,7 +204,7 @@
                     };
 
                     App.ajax({
-                        url: App.url('/novosga.triagem/distribui_senha'),
+                        url: App.url('/novosga.triage/distribui_senha'),
                         type: 'post',
                         data: data,
                         success: function (response) {
@@ -238,7 +238,7 @@
                 var self = this;
 
                 App.ajax({
-                    url: App.url('/novosga.triagem/consulta_senha'),
+                    url: App.url('/novosga.triage/consulta_senha'),
                     data: {
                         numero: self.search
                     },
@@ -256,12 +256,12 @@
                         servicos: ids,
                         imprimir: this.config.imprimir,
                     };
-                App.Storage.set('novosga.triagem', JSON.stringify(config));
+                App.Storage.set('novosga.triage', JSON.stringify(config));
             },
             
             loadConfig: function () {
                 try {
-                    var json = App.Storage.get('novosga.triagem'),
+                    var json = App.Storage.get('novosga.triage'),
                         config = JSON.parse(json);
                         
                     config.servicos = config.servicos || [];
@@ -285,7 +285,7 @@
             fetchClients: _.debounce(function () {
                 var self = this;
                 App.ajax({
-                    url: App.url('/novosga.triagem/clientes'),
+                    url: App.url('/novosga.triage/clientes'),
                     data: {
                         q: self.cliente.documento
                     },
