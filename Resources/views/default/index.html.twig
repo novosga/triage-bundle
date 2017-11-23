@@ -433,7 +433,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/novosgatriagem/css/style.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ asset('bundles/novosgatriage/css/style.css') }}">
 {% endblock %}    
 
 {% block javascripts %}
@@ -443,6 +443,6 @@
             prioridades = {{ prioridades|json_encode()|raw}},
             unidade     = {{ unidade|json_encode()|raw }};
     </script>
-    <script type="text/javascript" src="{{ asset('bundles/novosgatriagem/js/lodash.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/novosgatriagem/js/script.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/lodash.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/script.js') }}"></script>
 {% endblock %}
