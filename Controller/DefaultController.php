@@ -324,7 +324,7 @@ class DefaultController extends Controller
                     'unidade' => $unidade,
                     'servico' => $servico,
                     'data'    => $data,
-                ], 
+                ],
                 [
                     'hora' => 'ASC'
                 ]
