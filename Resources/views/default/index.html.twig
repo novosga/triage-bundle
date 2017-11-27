@@ -269,14 +269,14 @@
                     </div>
                     <div class="modal-body">
                         <ul>
-                            {% for prioridade in prioridades %}
-                                <li>
-                                    <label>
-                                        <input type="radio" name="prioridade" value="{{ prioridade.id }}" v-model="prioridade">
-                                        {{ prioridade.nome }}
-                                    </label>
-                                </li>
-                            {% endfor %}
+                            <li v-for="p in prioridades">
+                                <label>
+                                    <input type="radio" v-bind:value="p" v-model="prioridade">
+                                    {% verbatim %}
+                                        {{ p.nome }}
+                                    {% endverbatim %}
+                                </label>
+                            </li>
                         </ul>
                     </div>
                     <div class="modal-footer">

@@ -11,8 +11,10 @@
 
 namespace Novosga\TriageBundle\Controller;
 
-use Exception;
 use App\Service\TicketService;
+use DateTime;
+use Exception;
+use Novosga\Entity\Agendamento;
 use Novosga\Entity\Atendimento;
 use Novosga\Entity\Cliente;
 use Novosga\Entity\Prioridade;
@@ -40,14 +42,14 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_triage_index")
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, ServicoService $servicoService)
     {
         $em = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
         $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
-        $servicos = $this->getServicoService()->servicosUnidade($unidade, 'e.ativo = TRUE');
+        $servicos = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
         
         return $this->render('@NovosgaTriage/default/index.html.twig', [
             'unidade' => $unidade,
@@ -82,43 +84,29 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
+        $repo    = $em->getRepository(Atendimento::class);
         
         if ($unidade) {
             $ids = explode(',', $request->get('ids'));
             $senhas = [];
             if (count($ids)) {
-                $dql = "
-                    SELECT
-                        s.id, COUNT(e) as total
-                    FROM
-                        Novosga\Entity\Atendimento e
-                        JOIN e.servico s
-                    WHERE
-                        e.unidade = :unidade AND
-                        e.servico IN (:servicos)
-                ";
                 // total senhas do servico (qualquer status)
-                $rs = $em
-                        ->createQuery($dql.' GROUP BY s.id')
-                        ->setParameter('unidade', $unidade)
-                        ->setParameter('servicos', $ids)
-                        ->getArrayResult();
+                $rs = $repo->countByServicos($unidade, $ids);
                 foreach ($rs as $r) {
                     $senhas[$r['id']] = ['total' => $r['total'], 'fila' => 0];
                 }
+                
                 // total senhas esperando
-                $rs = $em
-                        ->createQuery($dql.' AND e.status = :status GROUP BY s.id')
-                        ->setParameter('unidade', $unidade)
-                        ->setParameter('servicos', $ids)
-                        ->setParameter('status', AtendimentoService::SENHA_EMITIDA)
-                        ->getArrayResult();
+                $rs = $repo->countByServicos($unidade, $ids, AtendimentoService::SENHA_EMITIDA);
                 foreach ($rs as $r) {
                     $senhas[$r['id']]['fila'] = $r['total'];
                 }
+                
+                // ultima senha
+                $ultimoAtendimento = $repo->getUltimo($unidade);
 
                 $data = [
-                    'ultima'   => $atendimentoService->ultimaSenhaUnidade($unidade),
+                    'ultima'   => $ultimoAtendimento,
                     'servicos' => $senhas,
                 ];
                 
@@ -135,45 +123,38 @@ class DefaultController extends Controller
      *
      * @Route("/servico_info", name="novosga_triage_servico_info")
      */
-    public function servicoInfoAction(Request $request, AtendimentoService $atendimentoService)
+    public function servicoInfoAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
-        
+        $em       = $this->getDoctrine()->getManager();
+        $id       = (int) $request->get('id');
+        $usuario  = $this->getUser();
+        $unidade  = $usuario->getLotacao()->getUnidade();
+        $servico  = $em->find(Servico::class, $id);
         $envelope = new Envelope();
-        $id = (int) $request->get('id');
         
-        $servico = $em->find(Servico::class, $id);
         if (!$servico) {
             throw new Exception(_('Serviço inválido'));
         }
+        
         $data = [
             'nome' => $servico->getNome(),
             'descricao' => $servico->getDescricao()
         ];
 
         // ultima senha
-        $atendimento = $atendimentoService->ultimaSenhaServico($unidade, $servico);
+        $atendimento = $em->getRepository(Atendimento::class)->getUltimo($unidade, $servico);
         
         if ($atendimento) {
-            $data['senha'] = $atendimento->getSenha()->__toString();
+            $data['senha']   = $atendimento->getSenha()->__toString();
             $data['senhaId'] = $atendimento->getId();
         } else {
-            $data['senha'] = '-';
+            $data['senha']   = '-';
             $data['senhaId'] = '';
         }
+        
         // subservicos
         $data['subservicos'] = [];
-        $subservicos = $em
-                    ->createQueryBuilder()
-                    ->select('e')
-                    ->from(Servico::class, 'e')
-                    ->where('e.mestre = :mestre')
-                    ->orderBy('e.nome', 'ASC')
-                    ->setParameter('mestre', $servico->getId())
-                    ->getQuery()
-                    ->getResult();
+        $subservicos = $em->getRepository(Servico::class)->getSubservicos($servico);
 
         foreach ($subservicos as $s) {
             $data['subservicos'][] = $s->getNome();
@@ -199,8 +180,8 @@ class DefaultController extends Controller
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $servico    = (int) $json->servico;
-        $prioridade = (int) $json->prioridade;
+        $servico    = isset($json->servico) ? (int) $json->servico : 0;
+        $prioridade = isset($json->prioridade) ? (int) $json->prioridade : 0;
         
         $cliente = null;
         if (is_object($json->cliente)) {
@@ -225,7 +206,7 @@ class DefaultController extends Controller
     public function distribuiSenhaAgendamentoAction(
         Request $request,
         AtendimentoService $atendimentoService,
-        \Novosga\Entity\Agendamento $agendamento
+        Agendamento $agendamento
     ) {
         if ($agendamento->getDataConfirmacao()) {
             throw new Exception('Agendamento já confirmado.');
@@ -233,8 +214,8 @@ class DefaultController extends Controller
         
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
-        $dt   = \DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
-        $now  = new \DateTime();
+        $dt   = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
+        $now  = new DateTime();
         $diff = $now->diff($dt);
         $mins = $diff->i + ($diff->h * 60);
         $max  = 30;
@@ -296,7 +277,7 @@ class DefaultController extends Controller
         $clientes  = $this
                 ->getDoctrine()
                 ->getManager()
-                ->getRepository(\Novosga\Entity\Cliente::class)
+                ->getRepository(Cliente::class)
                 ->findByDocumento("{$documento}%");
         
         $envelope->setData($clientes);
@@ -314,11 +295,11 @@ class DefaultController extends Controller
     {
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $data    = new \DateTime();
+        $data    = new DateTime();
         
         $agendamentos = $this
             ->getDoctrine()
-            ->getRepository(\Novosga\Entity\Agendamento::class)
+            ->getRepository(Agendamento::class)
             ->findBy(
                 [
                     'unidade' => $unidade,
@@ -334,15 +315,5 @@ class DefaultController extends Controller
         $envelope->setData($agendamentos);
 
         return $this->json($envelope);
-    }
-
-    /**
-     * @return ServicoService
-     */
-    private function getServicoService()
-    {
-        $service = new ServicoService($this->getDoctrine()->getManager());
-
-        return $service;
     }
 }
