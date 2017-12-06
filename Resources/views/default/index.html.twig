@@ -5,8 +5,10 @@
         <div class="col-sm-12">
             <h1>
                 <i class="fa fa-print" aria-hidden="true"></i>
-                {% trans %}Triagem{% endtrans %}
-                <small>{% trans %}Emissão de senhas{% endtrans %}</small>
+                {{ 'title'|trans }}
+                <small>
+                    {{ 'subtitle'|trans }}
+                </small>
             </h1>
         </div>
     </div>
@@ -293,16 +295,16 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{% trans %}Busca{% endtrans %}</h5>
+                        <h5 class="modal-title">{{ 'modal.search'|trans }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
                         <form class="row" role="form" v-on:submit.prevent="consultar">
                             <div class="col-3">
                                 <div class="input-group">
-                                    <input type="text" maxlength="10" class="form-search form-control" placeholder="{% trans %}Senha completa, sigla ou número{% endtrans %}" v-model="search">
+                                    <input type="text" maxlength="10" class="form-search form-control" placeholder="{{ 'modal.search.placeholder'|trans }}" v-model="search">
                                     <span class="input-group-btn">
-                                        <button type="submit" class="btn btn-primary" title="{% trans %}Consultar{% endtrans %}">
+                                        <button type="submit" class="btn btn-primary" title="{{ 'modal.search.button.submit'|trans }}">
                                             <i class="fa fa-search"></i>
                                         </button>
                                     </span>
@@ -314,14 +316,14 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>{% trans %}Número{% endtrans %}</th>
-                                        <th>{% trans %}Serviço{% endtrans %}</th>
-                                        <th>{% trans %}Data chegada{% endtrans %}</th>
-                                        <th>{% trans %}Data início{% endtrans %}</th>
-                                        <th>{% trans %}Data fim{% endtrans %}</th>
-                                        <th>{% trans %}Triagem{% endtrans %}</th>
-                                        <th>{% trans %}Atendente{% endtrans %}</th>
-                                        <th>{% trans %}Situação{% endtrans %}</th>
+                                        <th>{{ 'label.ticket.number'|trans }}</th>
+                                        <th>{{ 'label.service'|trans }}</th>
+                                        <th>{{ 'label.ticket.arrival_date'|trans }}</th>
+                                        <th>{{ 'label.ticket.start_date'|trans }}</th>
+                                        <th>{{ 'label.ticket.end_date'|trans }}</th>
+                                        <th>{{ 'label.triage'|trans }}</th>
+                                        <th>{{ 'label.ticket.user'|trans }}</th>
+                                        <th>{{ 'label.status'|trans }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -335,17 +337,17 @@
                                             </td>
                                             <td>
                                                 <span v-if="atendimento.chegada">
-                                                    {{moment(atendimento.chegada, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                    {{moment(atendimento.chegada, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
                                                 <span v-if="atendimento.inicio">
-                                                    {{moment(atendimento.inicio, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                    {{moment(atendimento.inicio, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
                                                 <span v-if="atendimento.fim">
-                                                    {{moment(atendimento.fim, 'YYYY-MM-DD hh:mm:ss').format('DD/MM/YYYY hh:mm:ss')}}
+                                                    {{moment(atendimento.fim, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
@@ -439,9 +441,10 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        var servicos    = {{ servicos|json_encode()|raw }},
-            prioridades = {{ prioridades|json_encode()|raw}},
-            unidade     = {{ unidade|json_encode()|raw }};
+        var servicos       = {{ servicos|json_encode()|raw }},
+            prioridades    = {{ prioridades|json_encode()|raw}},
+            unidade        = {{ unidade|json_encode()|raw }},
+            dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/lodash.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/script.js') }}"></script>

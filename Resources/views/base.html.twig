@@ -1,5 +1,7 @@
 {% extends "base.html.twig" %}
 
+{% trans_default_domain 'NovosgaTriageBundle' %}
+
 {% block title -%}
-    {% trans %}Triagem{% endtrans %}
+    {{ 'title'|trans }}
 {%- endblock %} 
