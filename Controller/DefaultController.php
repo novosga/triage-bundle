@@ -27,6 +27,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * DefaultController
@@ -35,6 +36,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DefaultController extends Controller
 {
+    const DOMAIN = 'NovosgaTriageBundle';
     
     /**
      * @param Request $request
@@ -123,7 +125,7 @@ class DefaultController extends Controller
      *
      * @Route("/servico_info", name="novosga_triage_servico_info")
      */
-    public function servicoInfoAction(Request $request)
+    public function servicoInfoAction(Request $request, TranslatorInterface $translator)
     {
         $em       = $this->getDoctrine()->getManager();
         $id       = (int) $request->get('id');
@@ -133,7 +135,7 @@ class DefaultController extends Controller
         $envelope = new Envelope();
         
         if (!$servico) {
-            throw new Exception(_('Serviço inválido'));
+            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
         }
         
         $data = [
@@ -206,10 +208,11 @@ class DefaultController extends Controller
     public function distribuiSenhaAgendamentoAction(
         Request $request,
         AtendimentoService $atendimentoService,
+        TranslatorInterface $translator,
         Agendamento $agendamento
     ) {
         if ($agendamento->getDataConfirmacao()) {
-            throw new Exception('Agendamento já confirmado.');
+            throw new Exception($translator->trans('error.schedule.confirmed', [], self::DOMAIN));
         }
         
         $data = $agendamento->getData()->format('Y-m-d');
@@ -221,7 +224,7 @@ class DefaultController extends Controller
         $max  = 30;
         
         if ($mins > $max) {
-            throw new Exception('Agendamento expirado. Tempo máximo de espera de 30 minutos.');
+            throw new Exception($translator->trans('error.schedule.expired', [], self::DOMAIN));
         }
         
         $envelope   = new Envelope();
@@ -247,15 +250,10 @@ class DefaultController extends Controller
      */
     public function consultaSenhaAction(Request $request, AtendimentoService $atendimentoService)
     {
-        $envelope = new Envelope();
-        $usuario = $this->getUser();
-        $unidade = $usuario->getLotacao()->getUnidade();
-        
-        if (!$unidade) {
-            throw new Exception(_('Nenhuma unidade selecionada'));
-        }
-
-        $numero = $request->get('numero');
+        $envelope     = new Envelope();
+        $usuario      = $this->getUser();
+        $unidade      = $usuario->getLotacao()->getUnidade();
+        $numero       = $request->get('numero');
         $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
         $envelope->setData($atendimentos);
 

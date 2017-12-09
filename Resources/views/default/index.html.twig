@@ -26,8 +26,8 @@
                             <span class="input-group-addon" id="basic-addon1">
                                 <i class="fa fa-credit-card"></i>
                             </span>
-                            <label for="cliente-documento" class="sr-only">{% trans %}Documento{% endtrans %}</label>
-                            <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="11" placeholder="{% trans %}Documento{% endtrans %}" v-model="cliente.documento" 
+                            <label for="cliente-documento" class="sr-only">{{ 'label.customer.id'|trans }}</label>
+                            <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="30" placeholder="{{ 'label.customer.id'|trans }}" v-model="cliente.documento" 
                                    v-on:input="fetchClients"
                                    v-on:change="changeClient"
                                    v-on:blur="changeClient">
@@ -41,8 +41,8 @@
                             <span class="input-group-addon" id="basic-addon1">
                                 <i class="fa fa-user"></i>
                             </span>
-                            <label for="cliente-nome" class="sr-only">{% trans %}Nome{% endtrans %}</label>
-                            <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{% trans %}Nome{% endtrans %}" v-model="cliente.nome" />
+                            <label for="cliente-nome" class="sr-only">{{ 'label.name'|trans }}</label>
+                            <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{{ 'label.name'|trans }}" v-model="cliente.nome" />
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                             </button>
                             {% if prioridades|length %}
                                 <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click.prevent="showPrioridades(su.servico.id)" v-if="su.prioridade">
-                                    {% trans %}Prioridade{% endtrans %}
+                                    {{ 'label.priority'|trans }}
                                 </button>
                             {% endif %}
                         </span>
@@ -117,12 +117,12 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{% trans %}Senha|Bilhete{% endtrans %}</h5>
+                        <h5 class="modal-title">{{ 'label.ticket'|trans }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body" v-if="atendimento">
                         <div class="field">
-                            <h4>{% trans %}Número{% endtrans %}</h4>
+                            <h4>{{ 'label.ticket.number'|trans }}</h4>
                             <p class="numero">
                                 {%- verbatim -%}
                                     {{atendimento.senha.format}}
@@ -130,7 +130,7 @@
                             </p>
                         </div>
                         <div class="field">
-                            <h4>{% trans %}Serviço{% endtrans %}</h4>
+                            <h4>{{ 'label.service'|trans }}</h4>
                             <p class="servico">
                                 {%- verbatim -%}
                                     {{atendimento.servico.nome}}
@@ -138,7 +138,7 @@
                             </p>
                         </div>
                         <div class="field">
-                            <h4>{% trans %}Prioridade{% endtrans %}</h4>
+                            <h4>{{ 'label.priority'|trans }}</h4>
                             <p class="nome-prioridade">
                                 {%- verbatim -%}
                                     {{atendimento.prioridade.nome}}
@@ -198,7 +198,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{% trans %}Serviço{% endtrans %}</h5>
+                        <h5 class="modal-title">{{ 'label.service'|trans }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body" v-if="servicoInfo">
@@ -206,7 +206,7 @@
                             <tbody>
                                 <tr>
                                     <th>
-                                        {% trans %}Nome{% endtrans %}
+                                        {{ 'label.name'|trans }}
                                     </th>
                                     <td>
                                         {%- verbatim -%}
@@ -231,7 +231,7 @@
                                 </tr>
                                 <tr>
                                     <th>
-                                        {% trans %}Descrição{% endtrans %}
+                                        {{ 'label.description'|trans }}
                                     </th>
                                     <td>
                                         {%- verbatim -%}
@@ -241,7 +241,7 @@
                                 </tr>
                                 <tr>
                                     <th>
-                                        {% trans %}Subserviços{% endtrans %}
+                                        {{ 'label.subservices'|trans }}
                                     </th>
                                     <td>
                                         <ul class="subservicos notempty" v-if="servicoInfo.subservicos.length">
@@ -268,7 +268,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{% trans %}Prioridade{% endtrans %}</h5>
+                        <h5 class="modal-title">{{ 'label.priority'|trans }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -338,18 +338,18 @@
                                                 {{atendimento.servico.nome}}
                                             </td>
                                             <td>
-                                                <span v-if="atendimento.chegada">
-                                                    {{moment(atendimento.chegada, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
+                                                <span v-if="atendimento.dataChegada">
+                                                    {{moment(atendimento.dataChegada, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span v-if="atendimento.inicio">
-                                                    {{moment(atendimento.inicio, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
+                                                <span v-if="atendimento.dataInicio">
+                                                    {{moment(atendimento.dataInicio, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span v-if="atendimento.fim">
-                                                    {{moment(atendimento.fim, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
+                                                <span v-if="atendimento.dataFim">
+                                                    {{moment(atendimento.dataFim, 'YYYY-MM-DD hh:mm:ss').format(dateTimeFormat)}}
                                                 </span>
                                             </td>
                                             <td>
@@ -381,7 +381,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>{% trans %}Serviço{% endtrans %}</label>
+                            <label>{{ 'label.service'|trans }}</label>
                             <select class="form-control" v-on:change="loadAgendamentos" v-model="servicoAgendamento">
                                 <option value=""></option>
                                 <option v-bind:value="s.servico.id" v-for="s in servicos">
@@ -394,10 +394,10 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>{% trans %}Data{% endtrans %}</th>
-                                    <th>{% trans %}Hora{% endtrans %}</th>
-                                    <th>{% trans %}Nome{% endtrans %}</th>
-                                    <th>{% trans %}Documento{% endtrans %}</th>
+                                    <th>{{ 'label.date'|trans }}</th>
+                                    <th>{{ 'label.time'|trans }}</th>
+                                    <th>{{ 'label.name'|trans }}</th>
+                                    <th>{{ 'label.customer.id'|trans }}</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -405,7 +405,7 @@
                                 {% verbatim %}
                                     <tr v-for="agendamento in agendamentos" v-bind:class="{ 'table-success': !!agendamento.dataConfirmacao }">
                                         <td>
-                                            {{moment(agendamento.data, 'YYYY-MM-DD').format('DD/MM/YYYY')}}
+                                            {{moment(agendamento.data, 'YYYY-MM-DD').format(dateTime)}}
                                         </td>
                                         <td>
                                             {{agendamento.hora}}
@@ -446,6 +446,7 @@
         var servicos       = {{ servicos|json_encode()|raw }},
             prioridades    = {{ prioridades|json_encode()|raw}},
             unidade        = {{ unidade|json_encode()|raw }},
+            dateTime       = '{{ 'MM/DD/YYYY'|trans }}';
             dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/lodash.min.js') }}"></script>

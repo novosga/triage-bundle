@@ -146,6 +146,10 @@
         <source>MM/DD/YYYY hh:mm:ss</source>
         <target>DD/MM/YYYY hh:mm:ss</target>
       </trans-unit>
+      <trans-unit id="45">
+        <source>MM/DD/YYYY</source>
+        <target>DD/MM/YYYY</target>
+      </trans-unit>
       <trans-unit id="49">
         <source>modal.search.button.submit</source>
         <target>Consultar</target>
@@ -153,6 +157,50 @@
       <trans-unit id="50">
         <source>server.datetime</source>
         <target>Data e hora no servidor</target>
+      </trans-unit>
+      <trans-unit id="51">
+        <source>error.invalid_service</source>
+        <target>Serviço inválido</target>
+      </trans-unit>
+      <trans-unit id="52">
+        <source>error.schedule.confirmed</source>
+        <target>Agendamento já confirmado</target>
+      </trans-unit>
+      <trans-unit id="53">
+        <source>error.schedule.expired</source>
+        <target>Agendamento expirado. Tempo máximo de espera de 30 minutos.</target>
+      </trans-unit>
+      <trans-unit id="54">
+        <source>label.name</source>
+        <target>Nome</target>
+      </trans-unit>
+      <trans-unit id="55">
+        <source>label.priority</source>
+        <target>Prioridade</target>
+      </trans-unit>
+      <trans-unit id="56">
+        <source>label.ticket</source>
+        <target>Senha</target>
+      </trans-unit>
+      <trans-unit id="57">
+        <source>label.customer.id</source>
+        <target>Documento</target>
+      </trans-unit>
+      <trans-unit id="58">
+        <source>label.description</source>
+        <target>Descrição</target>
+      </trans-unit>
+      <trans-unit id="59">
+        <source>label.subservices</source>
+        <target>Subserviços</target>
+      </trans-unit>
+      <trans-unit id="60">
+        <source>label.date</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="61">
+        <source>label.time</source>
+        <target>Hora</target>
       </trans-unit>
     </body>
   </file>
