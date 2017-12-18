@@ -64,7 +64,8 @@
 
                 App.Websocket.on('connect', function () {
                     App.Websocket.emit('register user', {
-                        unidade: self.unidade.id
+                        secret: wsSecret,
+                        unity: self.unidade.id
                     });
                 });
 
@@ -106,6 +107,10 @@
                 if (this.config.imprimir) {
                     Impressao.imprimir(atendimento);
                 }
+            },
+
+            reprint: function (atendimento) {
+                Impressao.imprimir(atendimento);
             },
 
             showServicoInfo: function (servico) {
@@ -162,7 +167,7 @@
                         $('#dialog-senha').modal('show');
 
                         App.Websocket.emit('new ticket', {
-                            unidade: self.unidade.id
+                            unity: self.unidade.id
                         });
                     },
                     complete: function () {
@@ -214,11 +219,13 @@
                             $('#dialog-senha').modal('show');
                             
                             App.Websocket.emit('new ticket', {
-                                unidade: self.unidade.id
+                                unity: self.unidade.id
                             });
 
                             defer.resolve(self.atendimento);
                             self.cliente = {};
+                            
+                            self.update();
                         },
                         error: function () {
                             defer.reject();

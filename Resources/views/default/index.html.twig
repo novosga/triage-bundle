@@ -220,7 +220,7 @@
                                     </th>
                                     <td>
                                         <button class="btn btn-secondary" title="{% trans %}Reimprimir{% endtrans %}" 
-                                                v-on:click.prevent="print({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
+                                                v-on:click.prevent="reprint({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
                                             {%- verbatim -%}
                                                 {{servicoInfo.senha}}
                                             {%- endverbatim -%}
@@ -447,7 +447,8 @@
             prioridades    = {{ prioridades|json_encode()|raw}},
             unidade        = {{ unidade|json_encode()|raw }},
             dateTime       = '{{ 'MM/DD/YYYY'|trans }}';
-            dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}';
+            dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}',
+            wsSecret       = '{{ wsSecret }}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/lodash.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/script.js') }}"></script>

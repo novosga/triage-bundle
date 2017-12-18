@@ -11,6 +11,7 @@
 
 namespace Novosga\TriageBundle\Controller;
 
+use App\Service\SecurityService;
 use App\Service\TicketService;
 use DateTime;
 use Exception;
@@ -44,19 +45,20 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_triage_index")
      */
-    public function indexAction(Request $request, ServicoService $servicoService)
+    public function indexAction(Request $request, ServicoService $servicoService, SecurityService $securityService)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em      = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
         $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
-        $servicos = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
+        $servicos    = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
         
         return $this->render('@NovosgaTriage/default/index.html.twig', [
-            'unidade' => $unidade,
-            'servicos' => $servicos,
+            'unidade'     => $unidade,
+            'servicos'    => $servicos,
             'prioridades' => $prioridades,
+            'wsSecret'    => $securityService->getWebsocketSecret(),
         ]);
     }
 
