@@ -445,6 +445,7 @@
     <script>
         var servicos       = {{ servicos|json_encode()|raw }},
             prioridades    = {{ prioridades|json_encode()|raw}},
+            usuario        = {{ usuario|json_encode()|raw }},
             unidade        = {{ unidade|json_encode()|raw }},
             dateTime       = '{{ 'MM/DD/YYYY'|trans }}';
             dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}',

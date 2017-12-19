@@ -65,6 +65,7 @@
                 App.Websocket.on('connect', function () {
                     App.Websocket.emit('register user', {
                         secret: wsSecret,
+                        user: usuario.id,
                         unity: self.unidade.id
                     });
                 });

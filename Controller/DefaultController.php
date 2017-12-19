@@ -55,6 +55,7 @@ class DefaultController extends Controller
         $servicos    = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
         
         return $this->render('@NovosgaTriage/default/index.html.twig', [
+            'usuario'     => $usuario,
             'unidade'     => $unidade,
             'servicos'    => $servicos,
             'prioridades' => $prioridades,
