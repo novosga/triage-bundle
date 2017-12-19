@@ -22,7 +22,7 @@ class NovosgaTriageBundle extends BaseModule
 
     public function getDisplayName()
     {
-        return 'Triagem';
+        return 'module.name';
     }
 
     public function getHomeRoute()
