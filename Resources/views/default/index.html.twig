@@ -448,7 +448,7 @@
             usuario        = {{ usuario|json_encode()|raw }},
             unidade        = {{ unidade|json_encode()|raw }},
             dateTime       = '{{ 'MM/DD/YYYY'|trans }}';
-            dateTimeFormat = '{{ 'MM/DD/YYYY hh:mm:ss'|trans }}',
+            dateTimeFormat = '{{ 'MM/DD/YYYY HH:mm:ss'|trans }}',
             wsSecret       = '{{ wsSecret }}';
     </script>
     <script type="text/javascript" src="{{ asset('bundles/novosgatriage/js/lodash.min.js') }}"></script>
