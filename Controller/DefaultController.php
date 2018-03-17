@@ -45,7 +45,7 @@ class DefaultController extends Controller
      *
      * @Route("/", name="novosga_triage_index")
      */
-    public function indexAction(Request $request, ServicoService $servicoService, SecurityService $securityService)
+    public function index(Request $request, ServicoService $servicoService, SecurityService $securityService)
     {
         $em      = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
@@ -69,7 +69,7 @@ class DefaultController extends Controller
      *
      * @Route("/imprimir/{id}", name="novosga_triage_print")
      */
-    public function imprimirAction(Request $request, TicketService $service, Atendimento $atendimento)
+    public function imprimir(Request $request, TicketService $service, Atendimento $atendimento)
     {
         $html = $service->printTicket($atendimento);
 
@@ -82,7 +82,7 @@ class DefaultController extends Controller
      *
      * @Route("/ajax_update", name="novosga_triage_ajax_update")
      */
-    public function ajaxUpdateAction(Request $request, AtendimentoService $atendimentoService)
+    public function ajaxUpdate(Request $request, AtendimentoService $atendimentoService)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -128,7 +128,7 @@ class DefaultController extends Controller
      *
      * @Route("/servico_info", name="novosga_triage_servico_info")
      */
-    public function servicoInfoAction(Request $request, TranslatorInterface $translator)
+    public function servicoInfo(Request $request, TranslatorInterface $translator)
     {
         $em       = $this->getDoctrine()->getManager();
         $id       = (int) $request->get('id');
@@ -177,7 +177,7 @@ class DefaultController extends Controller
      * @Route("/distribui_senha", name="novosga_triage_distribui_senha")
      * @Method("POST")
      */
-    public function distribuiSenhaAction(Request $request, AtendimentoService $atendimentoService)
+    public function distribuiSenha(Request $request, AtendimentoService $atendimentoService)
     {
         $json = json_decode($request->getContent());
         
@@ -208,7 +208,7 @@ class DefaultController extends Controller
      * @Route("/distribui_agendamento/{id}", name="novosga_triage_distribui_agendamento")
      * @Method("POST")
      */
-    public function distribuiSenhaAgendamentoAction(
+    public function distribuiSenhaAgendamento(
         Request $request,
         AtendimentoService $atendimentoService,
         TranslatorInterface $translator,
@@ -251,7 +251,7 @@ class DefaultController extends Controller
      *
      * @Route("/consulta_senha", name="novosga_triage_consulta_senha")
      */
-    public function consultaSenhaAction(Request $request, AtendimentoService $atendimentoService)
+    public function consultaSenha(Request $request, AtendimentoService $atendimentoService)
     {
         $envelope     = new Envelope();
         $usuario      = $this->getUser();
@@ -271,7 +271,7 @@ class DefaultController extends Controller
      *
      * @Route("/clientes", name="novosga_triage_clientes")
      */
-    public function clientesAction(Request $request)
+    public function clientes(Request $request)
     {
         $envelope  = new Envelope();
         $documento = $request->get('q');
@@ -292,7 +292,7 @@ class DefaultController extends Controller
      *
      * @Route("/agendamentos/{id}", name="novosga_triage_atendamentos")
      */
-    public function agendamentosAction(Request $request, Servico $servico)
+    public function agendamentos(Request $request, Servico $servico)
     {
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
