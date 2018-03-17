@@ -92,7 +92,10 @@ class DefaultController extends Controller
         $repo    = $em->getRepository(Atendimento::class);
         
         if ($unidade) {
-            $ids = explode(',', $request->get('ids'));
+            $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
+                return $i > 0;
+            });
+            
             $senhas = [];
             if (count($ids)) {
                 // total senhas do servico (qualquer status)
