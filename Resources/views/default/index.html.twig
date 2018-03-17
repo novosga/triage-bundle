@@ -60,6 +60,18 @@
         </div>
 
         <div id="triagem-servicos" class="row">
+            <div class="col-md-12" v-if="servicos.length === 0">
+                <div class="jumbotron text-center">
+                    <h1><i class="fa fa-frown-o"></i></h1>
+                    <p>Nenhum serviço habilitado para a sua unidade.</p>
+                </div>
+            </div>
+            <div class="col-md-12" v-if="servicos.length > 0 && config.servicosHabilitados.length===0">
+                <div class="jumbotron text-center">
+                    <h1><i class="fa fa-frown-o"></i></h1>
+                    <p>Nenhum serviço marcado para exibição. Clique em <b>Configurações</b> abaixo para marcar os seriços desejados.</p>
+                </div>
+            </div>
             <div class="triagem-servico col-md-6" v-for="su in config.servicosHabilitados">
                 <div class="card">
                     <div class="card-body">
@@ -90,9 +102,6 @@
                     </div>
                 </div>
             </div>
-            <p v-if="!servicos.length">
-                {% trans %}Nenhum serviço habilitado para a unidade atual{% endtrans %}
-            </p>
         </div>
         <p class="links">
             <a href="#dialog-busca" class="btn btn-secondary" data-toggle="modal">
