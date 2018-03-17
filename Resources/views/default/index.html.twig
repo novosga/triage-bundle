@@ -155,6 +155,12 @@
                             </p>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" v-on:click.prevent="reprint(atendimento)">
+                            <i class="fa fa-print"></i> 
+                            {% trans %}Imprimir{% endtrans %}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

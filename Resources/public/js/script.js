@@ -10,7 +10,7 @@
         iframe: 'frame-impressao',
         
         url: function (atendimento) {
-            return App.url('/novosga.triage/imprimir/') + atendimento.id;
+            return App.url('/novosga.triage/imprimir/') + atendimento.id +'?_' + (new Date()).getTime();
         },
         
         imprimir: function (atendimento) {
