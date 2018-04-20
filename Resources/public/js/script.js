@@ -98,8 +98,10 @@
                         ids: self.servicoIds.join(',')
                     },
                     success: function (response) {
-                        self.totais = response.data.servicos;
-                        self.ultimaSenha = response.data.ultima;
+                        if (response.data) {
+                            self.totais = response.data.servicos;
+                            self.ultimaSenha = response.data.ultima;
+                        }
                     }
                 });
             },
