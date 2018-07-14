@@ -23,9 +23,11 @@
                 <div class="row">
                     <div class="col-3">
                         <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">
-                                <i class="fa fa-credit-card"></i>
-                            </span>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fa fa-credit-card"></i>
+                                </span>
+                            </div>
                             <label for="cliente-documento" class="sr-only">{{ 'label.customer.id'|trans }}</label>
                             <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="30" placeholder="{{ 'label.customer.id'|trans }}" v-model="cliente.documento" 
                                    v-on:input="fetchClients"
@@ -38,9 +40,11 @@
                     </div>
                     <div class="col-9">
                         <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">
-                                <i class="fa fa-user"></i>
-                            </span>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fa fa-user"></i>
+                                </span>
+                            </div>
                             <label for="cliente-nome" class="sr-only">{{ 'label.name'|trans }}</label>
                             <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{{ 'label.name'|trans }}" v-model="cliente.nome" />
                         </div>
@@ -167,32 +171,18 @@
 
         {# dialog de configuracao #}
         <div id="dialog-triagem-config" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{% trans %}Configuração{% endtrans %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <fieldset>
-                            <legend>{% trans %}Impressão{% endtrans %}</legend>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
-                                            {% trans %}Habilitar impressão{% endtrans %}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <fieldset>
-                            <legend>{% trans %}Serviços{% endtrans %}</legend>
-                            <div class="row">
-                                <div class="col-sm-6" v-for="su in servicos">
-                                    <div class="checkbox">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <fieldset>
+                                    <legend>{% trans %}Serviços{% endtrans %}</legend>
+                                    <div class="checkbox" v-for="su in servicos">
                                         <label>
                                             <input type="checkbox" v-bind:value="su" v-model="config.servicosHabilitados" v-on:change="saveConfig"> 
                                             {% verbatim %}
@@ -200,9 +190,20 @@
                                             {% endverbatim %}
                                         </label>
                                     </div>
-                                </div>
+                                </fieldset>
                             </div>
-                        </fieldset>
+                            <div class="col-sm-4">
+                                <fieldset>
+                                    <legend>{% trans %}Impressão{% endtrans %}</legend>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
+                                            {% trans %}Habilitar impressão{% endtrans %}
+                                        </label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -320,11 +321,11 @@
                             <div class="col-3">
                                 <div class="input-group">
                                     <input type="text" maxlength="10" class="form-search form-control" placeholder="{{ 'modal.search.placeholder'|trans }}" v-model="search">
-                                    <span class="input-group-btn">
+                                    <div class="input-group-append">
                                         <button type="submit" class="btn btn-primary" title="{{ 'modal.search.button.submit'|trans }}">
                                             <i class="fa fa-search"></i>
                                         </button>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </form>
