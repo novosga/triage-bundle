@@ -23,8 +23,7 @@ use Novosga\Entity\Servico;
 use Novosga\Http\Envelope;
 use Novosga\Service\AtendimentoService;
 use Novosga\Service\ServicoService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,7 +42,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/", name="novosga_triage_index")
+     * @Route("/", name="novosga_triage_index", methods={"GET"})
      */
     public function index(Request $request, ServicoService $servicoService, SecurityService $securityService)
     {
@@ -67,7 +66,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/imprimir/{id}", name="novosga_triage_print")
+     * @Route("/imprimir/{id}", name="novosga_triage_print", methods={"GET"})
      */
     public function imprimir(Request $request, TicketService $service, Atendimento $atendimento)
     {
@@ -80,7 +79,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/ajax_update", name="novosga_triage_ajax_update")
+     * @Route("/ajax_update", name="novosga_triage_ajax_update", methods={"GET"})
      */
     public function ajaxUpdate(Request $request, AtendimentoService $atendimentoService)
     {
@@ -129,7 +128,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/servico_info", name="novosga_triage_servico_info")
+     * @Route("/servico_info", name="novosga_triage_servico_info", methods={"GET"})
      */
     public function servicoInfo(Request $request, TranslatorInterface $translator)
     {
@@ -177,8 +176,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/distribui_senha", name="novosga_triage_distribui_senha")
-     * @Method("POST")
+     * @Route("/distribui_senha", name="novosga_triage_distribui_senha", methods={"POST"})
      */
     public function distribuiSenha(Request $request, AtendimentoService $atendimentoService)
     {
@@ -208,8 +206,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/distribui_agendamento/{id}", name="novosga_triage_distribui_agendamento")
-     * @Method("POST")
+     * @Route("/distribui_agendamento/{id}", name="novosga_triage_distribui_agendamento", methods={"POST"})
      */
     public function distribuiSenhaAgendamento(
         Request $request,
@@ -252,7 +249,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/consulta_senha", name="novosga_triage_consulta_senha")
+     * @Route("/consulta_senha", name="novosga_triage_consulta_senha", methods={"GET"})
      */
     public function consultaSenha(Request $request, AtendimentoService $atendimentoService)
     {
@@ -272,17 +269,17 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/clientes", name="novosga_triage_clientes")
+     * @Route("/clientes", name="novosga_triage_clientes", methods={"GET"})
      */
     public function clientes(Request $request)
     {
         $envelope  = new Envelope();
         $documento = $request->get('q');
         $clientes  = $this
-                ->getDoctrine()
-                ->getManager()
-                ->getRepository(Cliente::class)
-                ->findByDocumento("{$documento}%");
+            ->getDoctrine()
+            ->getManager()
+            ->getRepository(Cliente::class)
+            ->findByDocumento("{$documento}%");
         
         $envelope->setData($clientes);
 
@@ -293,7 +290,7 @@ class DefaultController extends Controller
      * @param Request $request
      * @return Response
      *
-     * @Route("/agendamentos/{id}", name="novosga_triage_atendamentos")
+     * @Route("/agendamentos/{id}", name="novosga_triage_atendamentos", methods={"GET"})
      */
     public function agendamentos(Request $request, Servico $servico)
     {
