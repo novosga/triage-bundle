@@ -17,6 +17,9 @@
             var iframe = document.getElementById(this.iframe);
             if (iframe) {
                 iframe.src = this.url(atendimento);
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
             }
         }
         
