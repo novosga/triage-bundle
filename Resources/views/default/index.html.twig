@@ -70,13 +70,13 @@
                     <p>Nenhum serviço habilitado para a sua unidade.</p>
                 </div>
             </div>
-            <div class="col-md-12" v-if="servicos.length > 0 && config.servicosHabilitados.length===0">
+            <div class="col-md-12" v-if="servicos.length > 0 && servicosHabilitados.length===0">
                 <div class="jumbotron text-center">
                     <h1><i class="fa fa-frown-o"></i></h1>
                     <p>Nenhum serviço marcado para exibição. Clique em <b>Configurações</b> abaixo para marcar os seriços desejados.</p>
                 </div>
             </div>
-            <div class="triagem-servico col-md-6" v-for="su in config.servicosHabilitados">
+            <div class="triagem-servico col-md-6" v-for="su in servicosHabilitados">
                 <div class="card">
                     <div class="card-body">
                         <a href="#" v-on:click.prevent="showServicoInfo(su.servico.id)">
@@ -184,7 +184,7 @@
                                     <legend>{% trans %}Serviços{% endtrans %}</legend>
                                     <div class="checkbox" v-for="su in servicos">
                                         <label>
-                                            <input type="checkbox" v-bind:value="su" v-model="config.servicosHabilitados" v-on:change="saveConfig"> 
+                                            <input type="checkbox" v-model="su.habilitado" v-on:change="saveConfig"> 
                                             {% verbatim %}
                                                 {{ su.sigla }} - {{ su.servico.nome }}
                                             {% endverbatim %}
@@ -199,6 +199,12 @@
                                         <label>
                                             <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
                                             {% trans %}Habilitar impressão{% endtrans %}
+                                        </label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" v-model="config.exibir" v-on:change="saveConfig"> 
+                                            {% trans %}Exibir senha gerada{% endtrans %}
                                         </label>
                                     </div>
                                 </fieldset>

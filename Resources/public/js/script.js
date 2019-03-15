@@ -47,12 +47,20 @@
             search: '',
             searchResult: [],
             config: {
-                imppressao: true,
-                servicosHabilitados: [],
+                imprimir: true,
+                exibir: true,
+                desabilitados: [],
             },
             clientes: [],
             agendamentos: [],
             servicoAgendamento: null
+        },
+        computed: {
+            servicosHabilitados: function () {
+                return this.servicos.filter(function (su) {
+                    return su.habilitado;
+                });
+            }
         },
         methods: {
             init: function () {
@@ -222,7 +230,9 @@
                             self.atendimento = response.data;
                             self.print(self.atendimento);
 
-                            $('#dialog-senha').modal('show');
+                            if (self.config.exibir) {
+                                $('#dialog-senha').modal('show');
+                            }
                             
                             App.Websocket.emit('new ticket', {
                                 unity: self.unidade.id
@@ -262,37 +272,47 @@
             },
             
             saveConfig: function () {
-                var ids = this.config.servicosHabilitados.map(function (servicoUnidade) {
-                        return servicoUnidade.servico.id;
-                    }),
-                    config = {
-                        servicos: ids,
-                        imprimir: this.config.imprimir,
-                    };
-                App.Storage.set('novosga.triage', JSON.stringify(config));
+                this.config.desabilitados = [];
+
+                var self = this;
+                this.servicos.forEach(function (su) {
+                    if (!su.habilitado) {
+                        self.config.desabilitados.push(su.servico.id);
+                    }
+                });
+                
+                App.Storage.set('novosga.triage', JSON.stringify(this.config));
             },
             
             loadConfig: function () {
                 try {
                     var json = App.Storage.get('novosga.triage'),
-                        config = JSON.parse(json);
-                        
-                    config.servicos = config.servicos || [];
+                        config = (JSON.parse(json) || {});
                     
-                    this.config.imprimir = !!config.imprimir;
-                
-                    this.config.servicosHabilitados = this.servicos.filter(function (servicoUnidade) {
-                        for (var  i = 0; i < config.servicos.length; i++) {
-                            if (servicoUnidade.servico.id === config.servicos[i]) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
+                    if (config.exibir === undefined) {
+                        config.exibir = true;
+                    }
+
+                    if (config.desabilitados === undefined) {
+                        config.desabilitados = [];
+                    }
+
+                    if (config.imprimir === undefined) {
+                        config.imprimir = true;
+                    }
+                    
+                    this.config.imprimir = config.imprimir;
+                    this.config.exibir = config.exibir;
+                    this.config.desabilitados = config.desabilitados;
                 } catch (e) {
-                    this.config.imprimir = true;
-                    this.config.servicosHabilitados = this.servicos;
+                    // do nothing
                 }
+
+                var self = this;
+                this.servicos.forEach(function (su) {
+                    var habilitado = self.config.desabilitados.indexOf(su.servico.id) === -1;
+                    Vue.set(su, 'habilitado', habilitado);
+                });
             },
             
             fetchClients: _.debounce(function () {
