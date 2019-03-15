@@ -1,5 +1,5 @@
 <?xml version="1.0" ?><xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="es">
+  <file datatype="plaintext" original="messages.pt_BR.xlf" source-language="pt-BR" target-language="es-AR">
     <body>
       <trans-unit id="0">
         <source>module.name</source>
@@ -13,7 +13,7 @@
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
-        <target>Emisión de numero</target>
+        <target>Emisión de turnos</target>
         
       </trans-unit>
       <trans-unit id="3">
@@ -23,7 +23,7 @@
       </trans-unit>
       <trans-unit id="4">
         <source>placeholder.search</source>
-        <target>Buscar Numero</target>
+        <target>Buscar turno</target>
         
       </trans-unit>
       <trans-unit id="5">
@@ -43,12 +43,12 @@
       </trans-unit>
       <trans-unit id="8">
         <source>modal.attendance</source>
-        <target>Tratamiento</target>
+        <target>Atención</target>
         
       </trans-unit>
       <trans-unit id="9">
         <source>modal.attendance.ticket</source>
-        <target>Billete</target>
+        <target>Turno</target>
         
       </trans-unit>
       <trans-unit id="10">
@@ -78,7 +78,7 @@
       </trans-unit>
       <trans-unit id="15">
         <source>label.yes</source>
-        <target>Si</target>
+        <target>Sí</target>
         
       </trans-unit>
       <trans-unit id="16">
@@ -93,42 +93,42 @@
       </trans-unit>
       <trans-unit id="18">
         <source>alert.cancel.text</source>
-        <target>Desea realmente cancelar ese número?</target>
+        <target>Desea realmente cancelar este turno?</target>
         
       </trans-unit>
       <trans-unit id="19">
         <source>alert.reactivate.text</source>
-        <target>Desea realmente reactivar ese número?</target>
+        <target>Desea realmente reactivar este turno?</target>
         
       </trans-unit>
       <trans-unit id="20">
         <source>alert.transfer.text</source>
-        <target>¿Desea realmente transferir esta ese numero?</target>
+        <target>Desea realmente transferir este turno?</target>
         
       </trans-unit>
       <trans-unit id="21">
         <source>modal.attendance.button.reactivate</source>
-        <target>Reactivar número</target>
+        <target>Reactivar turno</target>
         
       </trans-unit>
       <trans-unit id="22">
         <source>modal.attendance.button.transfer</source>
-        <target>Transferir / Modificar número</target>
+        <target>Transferir / Modificar turno</target>
         
       </trans-unit>
       <trans-unit id="23">
         <source>modal.attendance.button.cancel</source>
-        <target>Cancelar número</target>
+        <target>Cancelar turno</target>
         
       </trans-unit>
       <trans-unit id="24">
         <source>modal.transfer</source>
-        <target>Transferir número</target>
+        <target>Transferir turno</target>
         
       </trans-unit>
       <trans-unit id="25">
         <source>modal.transfer.button</source>
-        <target>Tranferir</target>
+        <target>Transferir</target>
         
       </trans-unit>
       <trans-unit id="35">
@@ -138,7 +138,7 @@
       </trans-unit>
       <trans-unit id="36">
         <source>modal.search.placeholder</source>
-        <target>Contraseña completa, sigla o número</target>
+        <target>Turno completo, sigla o número</target>
         
       </trans-unit>
       <trans-unit id="37">
@@ -148,17 +148,17 @@
       </trans-unit>
       <trans-unit id="38">
         <source>label.ticket.arrival_date</source>
-        <target>Date de llegada</target>
+        <target>Hora de ingreso</target>
         
       </trans-unit>
       <trans-unit id="39">
         <source>label.ticket.start_date</source>
-        <target>Data de inicio</target>
+        <target>Hora de inicio</target>
         
       </trans-unit>
       <trans-unit id="40">
         <source>label.ticket.end_date</source>
-        <target>Data de finalización</target>
+        <target>Hora de finalización</target>
         
       </trans-unit>
       <trans-unit id="41">
@@ -183,6 +183,7 @@
       </trans-unit>
       <trans-unit id="45">
         <source>MM/DD/YYYY</source>
+        <target>DD/MM/YYYY</target>
         
       </trans-unit>
       <trans-unit id="49">
@@ -202,10 +203,12 @@
       </trans-unit>
       <trans-unit id="52">
         <source>error.schedule.confirmed</source>
+        <target>Turno ya confirmado</target>
         
       </trans-unit>
       <trans-unit id="53">
         <source>error.schedule.expired</source>
+        <target>Turno expirado. Tiempo máximo de espera de 30 minutos.</target>
         
       </trans-unit>
       <trans-unit id="54">
@@ -220,7 +223,7 @@
       </trans-unit>
       <trans-unit id="56">
         <source>label.ticket</source>
-        <target>Contraseña</target>
+        <target>Turno</target>
         
       </trans-unit>
       <trans-unit id="57">
@@ -240,11 +243,12 @@
       </trans-unit>
       <trans-unit id="60">
         <source>label.date</source>
-        <target>Dato</target>
+        <target>Datos</target>
         
       </trans-unit>
       <trans-unit id="61">
         <source>label.time</source>
+        <target>Tiempo</target>
         
       </trans-unit>
     </body>
