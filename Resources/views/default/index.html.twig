@@ -53,12 +53,12 @@
             </div>
             <div class="col-md-2 col-3">
                 <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}" v-if="ultimaSenha">
-                    <span class="label label-default" ng-class="{ 'label-default': ultimaSenha.prioridade==0, 'label-danger': ultimaSenha.prioridade.peso>0 }">
+                    <button v-bind:class="{ 'btn btn-sm':true, 'btn-primary': ultimaSenha.prioridade.peso===0, 'btn-danger': ultimaSenha.prioridade.peso>0 }" v-on:click="showTicket(ultimaSenha)">
                         <i class="fa fa-print"></i>&nbsp;
                         {%- verbatim -%}
                             {{ultimaSenha.senha.format}}
                         {%- endverbatim -%}
-                    </span>
+                    </button>
                 </div>
             </div>
         </div>

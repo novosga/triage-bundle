@@ -178,7 +178,9 @@
                         self.atendimento = response.data;
                         self.print(self.atendimento);
 
-                        $('#dialog-senha').modal('show');
+                        if (self.config.exibir) {
+                            $('#dialog-senha').modal('show');
+                        }
 
                         App.Websocket.emit('new ticket', {
                             unity: self.unidade.id
@@ -191,6 +193,11 @@
                         $('#dialog-agendamentos').modal('hide');
                     }
                 });
+            },
+
+            showTicket: function (ticket) {
+                this.atendimento = ticket;
+                $('#dialog-senha').modal('show');
             },
 
             distribuiSenhaNormal: function (servico) {
