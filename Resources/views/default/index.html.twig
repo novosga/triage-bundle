@@ -94,11 +94,11 @@
                             {%- endverbatim -%}
                         </span>
                         <span class="buttons pull-right">
-                            <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click.prevent="distribuiSenhaNormal(su.servico.id)">
+                            <button class="btn btn-primary" title="{% trans %}Distribuir senha normal{% endtrans %}" v-on:click.prevent="distribuiSenhaNormal(su.servico.id)" v-if="su.tipo !== 3">
                                 {% trans %}Normal{% endtrans %}
                             </button>
                             {% if prioridades|length %}
-                                <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click.prevent="showPrioridades(su.servico.id)" v-if="su.prioridade">
+                                <button class="btn btn-danger" title="{% trans %}Distribuir senha com prioridade{% endtrans %}" v-on:click.prevent="showPrioridades(su.servico.id)" v-if="su.tipo !== 2">
                                     {{ 'label.priority'|trans }}
                                 </button>
                             {% endif %}
