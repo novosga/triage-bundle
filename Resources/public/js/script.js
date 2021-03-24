@@ -25,7 +25,7 @@
         
     };
     
-    var app = new Vue({
+    new Vue({
         el: '#triagem',
         data: {
             servicoIds: [],
@@ -63,44 +63,6 @@
             }
         },
         methods: {
-            init: function () {
-                var self = this;
-                
-                App.Websocket.connect();
-
-                App.Websocket.on('new ticket', function () {
-                    console.log('new ticket');
-                    this.update();
-                });
-
-                App.Websocket.on('connect', function () {
-                    App.Websocket.emit('register user', {
-                        secret: wsSecret,
-                        user: usuario.id,
-                        unity: self.unidade.id
-                    });
-                });
-
-                // ajax polling fallback
-                App.Websocket.on('reconnect_failed', function () {
-                    App.Websocket.connect();
-                    console.log('ws timeout, ajax polling fallback');
-                    self.update();
-                });
-                
-                App.Websocket.on('register ok', function () {
-                    console.log('registered!');
-                });
-
-                this.servicos.forEach(function (su) {
-                    self.servicoIds.push(su.servico.id);
-                });
-
-                this.loadConfig();
-                
-                this.update();
-            },
-            
             update: function () {
                 var self = this;
                 App.ajax({
@@ -181,10 +143,6 @@
                         if (self.config.exibir) {
                             $('#dialog-senha').modal('show');
                         }
-
-                        App.Websocket.emit('new ticket', {
-                            unity: self.unidade.id
-                        });
                     },
                     complete: function () {
                         self.pausado = false;
@@ -241,10 +199,6 @@
                                 $('#dialog-senha').modal('show');
                             }
                             
-                            App.Websocket.emit('new ticket', {
-                                unity: self.unidade.id
-                            });
-
                             defer.resolve(self.atendimento);
                             self.cliente = {};
                             
@@ -345,8 +299,28 @@
                     }
                 }
             }
+        },
+        mounted() { 
+            App.SSE.connect([
+                `/unidades/${this.unidade.id}/fila`
+            ]);
+
+            App.SSE.onmessage = (e, data) => {
+                this.update();
+            };
+
+            // ajax polling fallback
+            App.SSE.ondisconnect = () => {
+                this.update();
+            };
+            
+            this.servicos.forEach((su) => {
+                this.servicoIds.push(su.servico.id);
+            });
+
+            this.loadConfig();
+            
+            this.update();
         }
     });
-    
-    app.init();
 })();
