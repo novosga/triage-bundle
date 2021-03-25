@@ -11,7 +11,6 @@
 
 namespace Novosga\TriageBundle\Controller;
 
-use App\Service\SecurityService;
 use App\Service\TicketService;
 use DateTime;
 use Exception;
@@ -44,7 +43,7 @@ class DefaultController extends AbstractController
      *
      * @Route("/", name="novosga_triage_index", methods={"GET"})
      */
-    public function index(Request $request, ServicoService $servicoService, SecurityService $securityService)
+    public function index(Request $request, ServicoService $servicoService)
     {
         $em      = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
@@ -58,7 +57,6 @@ class DefaultController extends AbstractController
             'unidade'     => $unidade,
             'servicos'    => $servicos,
             'prioridades' => $prioridades,
-            'wsSecret'    => $securityService->getWebsocketSecret(),
         ]);
     }
 
