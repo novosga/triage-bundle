@@ -36,6 +36,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DefaultController extends AbstractController
 {
     const DOMAIN = 'NovosgaTriageBundle';
+    const MAX_SCHEDULING_MINUTES_DELAY = 30;
     
     /**
      * @param Request $request
@@ -45,17 +46,17 @@ class DefaultController extends AbstractController
      */
     public function index(Request $request, ServicoService $servicoService)
     {
-        $em      = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
         $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
-        $servicos    = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
+        $servicos = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
         
         return $this->render('@NovosgaTriage/default/index.html.twig', [
-            'usuario'     => $usuario,
-            'unidade'     => $unidade,
-            'servicos'    => $servicos,
+            'usuario' => $usuario,
+            'unidade' => $unidade,
+            'servicos' => $servicos,
             'prioridades' => $prioridades,
         ]);
     }
@@ -86,7 +87,7 @@ class DefaultController extends AbstractController
         $envelope = new Envelope();
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $repo    = $em->getRepository(Atendimento::class);
+        $repo = $em->getRepository(Atendimento::class);
         
         if ($unidade) {
             $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
@@ -111,7 +112,7 @@ class DefaultController extends AbstractController
                 $ultimoAtendimento = $repo->getUltimo($unidade);
 
                 $data = [
-                    'ultima'   => $ultimoAtendimento,
+                    'ultima' => $ultimoAtendimento,
                     'servicos' => $senhas,
                 ];
                 
@@ -130,11 +131,11 @@ class DefaultController extends AbstractController
      */
     public function servicoInfo(Request $request, TranslatorInterface $translator)
     {
-        $em       = $this->getDoctrine()->getManager();
-        $id       = (int) $request->get('id');
-        $usuario  = $this->getUser();
-        $unidade  = $usuario->getLotacao()->getUnidade();
-        $servico  = $em->find(Servico::class, $id);
+        $em = $this->getDoctrine()->getManager();
+        $id = (int) $request->get('id');
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+        $servico = $em->find(Servico::class, $id);
         $envelope = new Envelope();
         
         if (!$servico) {
@@ -153,7 +154,7 @@ class DefaultController extends AbstractController
             $data['senha']   = $atendimento->getSenha()->__toString();
             $data['senhaId'] = $atendimento->getId();
         } else {
-            $data['senha']   = '-';
+            $data['senha'] = '-';
             $data['senhaId'] = '';
         }
         
@@ -184,7 +185,7 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
-        $servico    = isset($json->servico) ? (int) $json->servico : 0;
+        $servico = isset($json->servico) ? (int) $json->servico : 0;
         $prioridade = isset($json->prioridade) ? (int) $json->prioridade : 0;
         
         $cliente = null;
@@ -218,22 +219,23 @@ class DefaultController extends AbstractController
         
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
-        $dt   = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
-        $now  = new DateTime();
-        $diff = $now->diff($dt);
-        $mins = $diff->i + ($diff->h * 60);
-        $max  = 30;
+        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
+        $now = new DateTime();
         
-        if ($mins > $max) {
-            throw new Exception($translator->trans('error.schedule.expired', [], self::DOMAIN));
+        if ($dt < $now) {
+            $diff = $now->diff($dt);
+            $mins = $diff->i + ($diff->h * 60);
+            if ($mins > self::MAX_SCHEDULING_MINUTES_DELAY) {
+                throw new Exception($translator->trans('error.schedule.expired', [], self::DOMAIN));
+            }
         }
         
-        $envelope   = new Envelope();
-        $usuario    = $this->getUser();
-        $unidade    = $agendamento->getUnidade();
-        $servico    = $agendamento->getServico();
+        $envelope = new Envelope();
+        $usuario = $this->getUser();
+        $unidade = $agendamento->getUnidade();
+        $servico = $agendamento->getServico();
         $prioridade = 1;
-        $cliente    = $agendamento->getCliente();
+        $cliente = $agendamento->getCliente();
         
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente, $agendamento);
         $envelope->setData($data);
@@ -251,10 +253,10 @@ class DefaultController extends AbstractController
      */
     public function consultaSenha(Request $request, AtendimentoService $atendimentoService)
     {
-        $envelope     = new Envelope();
-        $usuario      = $this->getUser();
-        $unidade      = $usuario->getLotacao()->getUnidade();
-        $numero       = $request->get('numero');
+        $envelope = new Envelope();
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+        $numero = $request->get('numero');
         $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
         $envelope->setData($atendimentos);
 
@@ -294,7 +296,7 @@ class DefaultController extends AbstractController
     {
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $data    = new DateTime();
+        $data = new DateTime();
         
         $agendamentos = $this
             ->getDoctrine()
@@ -303,16 +305,13 @@ class DefaultController extends AbstractController
                 [
                     'unidade' => $unidade,
                     'servico' => $servico,
-                    'data'    => $data,
+                    'data' => $data,
                 ],
                 [
                     'hora' => 'ASC'
                 ]
             );
         
-        $envelope = new Envelope();
-        $envelope->setData($agendamentos);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope($agendamentos));
     }
 }
