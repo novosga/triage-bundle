@@ -202,6 +202,14 @@
         <source>label.time</source>
         <target>Hora</target>
       </trans-unit>
+      <trans-unit id="label.filtrar_agendamento">
+        <source>label.filtrar_agendamento</source>
+        <target>Filtrar</target>
+      </trans-unit>
+      <trans-unit id="label.filtrar_agendamento_placeholder">
+        <source>label.filtrar_agendamento_placeholder</source>
+        <target>Nome, Documento ou hora</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

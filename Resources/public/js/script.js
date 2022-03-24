@@ -53,14 +53,27 @@
             },
             clientes: [],
             agendamentos: [],
-            servicoAgendamento: null
+            servicoAgendamento: null,
+            filtroAgendamento: '',
         },
         computed: {
             servicosHabilitados: function () {
                 return this.servicos.filter(function (su) {
                     return su.habilitado;
                 });
-            }
+            },
+            agendamentosFiltrados: function () {
+                return this.agendamentos.filter(agendamento => {
+                    if (!this.filtroAgendamento) {
+                        return this.agendamentos;
+                    }
+                    return (
+                        agendamento.cliente.nome.toUpperCase().indexOf(this.filtroAgendamento.toUpperCase()) !== -1 ||
+                        agendamento.cliente.documento.indexOf(this.filtroAgendamento) !== -1 ||
+                        agendamento.hora.indexOf(this.filtroAgendamento) !== -1
+                    );
+                });
+            },
         },
         methods: {
             update: function () {

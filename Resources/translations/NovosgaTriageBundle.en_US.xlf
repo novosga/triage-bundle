@@ -245,6 +245,7 @@
       </trans-unit>
       <trans-unit id="61">
         <source>label.time</source>
+        <target>Time</target>
         
       </trans-unit>
     </body>

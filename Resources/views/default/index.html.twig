@@ -402,16 +402,26 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label>{{ 'label.service'|trans }}</label>
-                            <select class="form-control" v-on:change="loadAgendamentos" v-model="servicoAgendamento">
-                                <option value=""></option>
-                                <option v-bind:value="s.servico.id" v-for="s in servicos">
-                                    {%- verbatim -%}
-                                        {{ s.sigla }} - {{ s.servico.nome }}
-                                    {%- endverbatim -%}
-                                </option>
-                            </select>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>{{ 'label.service'|trans }}</label>
+                                    <select class="form-control" v-on:change="loadAgendamentos" v-model="servicoAgendamento">
+                                        <option value=""></option>
+                                        <option v-bind:value="s.servico.id" v-for="s in servicos">
+                                            {%- verbatim -%}
+                                                {{ s.sigla }} - {{ s.servico.nome }}
+                                            {%- endverbatim -%}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>{{ 'label.filtrar_agendamento'|trans }}</label>
+                                    <input type="text" class="form-control" v-model="filtroAgendamento" placeholder="{{ 'label.filtrar_agendamento_placeholder'|trans }}">
+                                </div>
+                            </div>
                         </div>
                         <table class="table">
                             <thead>
@@ -425,7 +435,7 @@
                             </thead>
                             <tbody>
                                 {% verbatim %}
-                                    <tr v-for="agendamento in agendamentos" v-bind:class="{ 'table-success': !!agendamento.dataConfirmacao }">
+                                    <tr v-for="agendamento in agendamentosFiltrados" v-bind:class="{ 'table-success': !!agendamento.dataConfirmacao }">
                                         <td>
                                             {{moment(agendamento.data, 'YYYY-MM-DD').format(dateTime)}}
                                         </td>
