@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Novo SGA project.
  *
@@ -11,17 +13,21 @@
 
 namespace Novosga\TriageBundle\Controller;
 
-use App\Service\TicketService;
 use DateTime;
 use Exception;
-use Novosga\Entity\Agendamento;
-use Novosga\Entity\Atendimento;
-use Novosga\Entity\Cliente;
-use Novosga\Entity\Prioridade;
-use Novosga\Entity\Servico;
+use Novosga\Entity\UsuarioInterface;
 use Novosga\Http\Envelope;
-use Novosga\Service\AtendimentoService;
-use Novosga\Service\ServicoService;
+use Novosga\Repository\AgendamentoRepositoryInterface;
+use Novosga\Repository\AtendimentoRepositoryInterface;
+use Novosga\Repository\ClienteRepositoryInterface;
+use Novosga\Repository\PrioridadeRepositoryInterface;
+use Novosga\Repository\ServicoRepositoryInterface;
+use Novosga\Service\AgendamentoServiceInterface;
+use Novosga\Service\AtendimentoServiceInterface;
+use Novosga\Service\ServicoServiceInterface;
+use Novosga\Service\TicketServiceInterface;
+use Novosga\TriageBundle\Dto\Cliente;
+use Novosga\TriageBundle\NovosgaTriageBundle;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,26 +39,23 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @author Rogerio Lino <rogeriolino@gmail.com>
  */
+#[Route("/", name: "novosga_triage_")]
 class DefaultController extends AbstractController
 {
-    const DOMAIN = 'NovosgaTriageBundle';
-    const MAX_SCHEDULING_MINUTES_DELAY = 30;
-    
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/", name="novosga_triage_index", methods={"GET"})
-     */
-    public function index(Request $request, ServicoService $servicoService)
-    {
-        $em = $this->getDoctrine()->getManager();
+    private const MAX_SCHEDULING_MINUTES_DELAY = 60;
+
+    #[Route("/", name: "index", methods: ['GET'])]
+    public function index(
+        ServicoServiceInterface $servicoService,
+        PrioridadeRepositoryInterface $prioridadeRepository,
+    ): Response {
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        
-        $prioridades = $em->getRepository(Prioridade::class)->findAtivas();
+
+        $prioridades = $prioridadeRepository->findAtivas();
         $servicos = $servicoService->servicosUnidade($unidade, ['ativo' => true]);
-        
+
         return $this->render('@NovosgaTriage/default/index.html.twig', [
             'usuario' => $usuario,
             'unidade' => $unidade,
@@ -61,34 +64,31 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/imprimir/{id}", name="novosga_triage_print", methods={"GET"})
-     */
-    public function imprimir(Request $request, TicketService $service, Atendimento $atendimento)
-    {
-        $html = $service->printTicket($atendimento);
+    #[Route("/imprimir/{id}", name: "print", methods: ["GET"])]
+    public function imprimir(
+        TicketServiceInterface $ticketService,
+        AtendimentoServiceInterface $atendimentoService,
+        int $id,
+    ): Response {
+        $atendimento = $atendimentoService->getById($id);
+        if (!$atendimento) {
+            throw $this->createNotFoundException();
+        }
+        $html = $ticketService->printTicket($atendimento);
 
         return new Response($html);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/ajax_update", name="novosga_triage_ajax_update", methods={"GET"})
-     */
-    public function ajaxUpdate(Request $request, AtendimentoService $atendimentoService)
-    {
-        $em = $this->getDoctrine()->getManager();
-        
+    #[Route("/ajax_update", name: "ajax_update", methods: ["GET"])]
+    public function ajaxUpdate(
+        Request $request,
+        AtendimentoRepositoryInterface $atendimentoRepository,
+    ): Response {
         $envelope = new Envelope();
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $repo = $em->getRepository(Atendimento::class);
-        
+    
         if ($unidade) {
             $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
                 return $i > 0;
@@ -97,19 +97,24 @@ class DefaultController extends AbstractController
             $senhas = [];
             if (count($ids)) {
                 // total senhas do servico (qualquer status)
-                $rs = $repo->countByServicos($unidade, $ids);
+                $rs = $atendimentoRepository->countByServicos($unidade, $ids);
                 foreach ($rs as $r) {
                     $senhas[$r['id']] = ['total' => $r['total'], 'fila' => 0];
                 }
                 
                 // total senhas esperando
-                $rs = $repo->countByServicos($unidade, $ids, AtendimentoService::SENHA_EMITIDA);
+                $rs = $atendimentoRepository
+                    ->countByServicos(
+                        $unidade,
+                        $ids,
+                        AtendimentoServiceInterface::SENHA_EMITIDA,
+                    );
                 foreach ($rs as $r) {
                     $senhas[$r['id']]['fila'] = $r['total'];
                 }
                 
                 // ultima senha
-                $ultimoAtendimento = $repo->getUltimo($unidade);
+                $ultimoAtendimento = $atendimentoRepository->getUltimo($unidade);
 
                 $data = [
                     'ultima' => $ultimoAtendimento,
@@ -123,23 +128,22 @@ class DefaultController extends AbstractController
         return $this->json($envelope);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/servico_info", name="novosga_triage_servico_info", methods={"GET"})
-     */
-    public function servicoInfo(Request $request, TranslatorInterface $translator)
-    {
-        $em = $this->getDoctrine()->getManager();
+    #[Route("/servico_info", name: "servico_info", methods: ["GET"])]
+    public function servicoInfo(
+        Request $request,
+        AtendimentoRepositoryInterface $atendimentoRepository,
+        ServicoRepositoryInterface $servicoRepository,
+        TranslatorInterface $translator,
+    ): Response {
         $id = (int) $request->get('id');
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $servico = $em->find(Servico::class, $id);
+        $servico = $servicoRepository->find($id);
         $envelope = new Envelope();
         
         if (!$servico) {
-            throw new Exception($translator->trans('error.invalid_service', [], self::DOMAIN));
+            throw new Exception($translator->trans('error.invalid_service', [], NovosgaTriageBundle::getDomain()));
         }
         
         $data = [
@@ -148,10 +152,10 @@ class DefaultController extends AbstractController
         ];
 
         // ultima senha
-        $atendimento = $em->getRepository(Atendimento::class)->getUltimo($unidade, $servico);
+        $atendimento = $atendimentoRepository->getUltimo($unidade, $servico);
         
         if ($atendimento) {
-            $data['senha']   = $atendimento->getSenha()->__toString();
+            $data['senha']   = (string) $atendimento->getSenha();
             $data['senhaId'] = $atendimento->getId();
         } else {
             $data['senha'] = '-';
@@ -160,7 +164,7 @@ class DefaultController extends AbstractController
         
         // subservicos
         $data['subservicos'] = [];
-        $subservicos = $em->getRepository(Servico::class)->getSubservicos($servico);
+        $subservicos = $servicoRepository->getSubservicos($servico);
 
         foreach ($subservicos as $s) {
             $data['subservicos'][] = $s->getNome();
@@ -171,17 +175,15 @@ class DefaultController extends AbstractController
         return $this->json($envelope);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/distribui_senha", name="novosga_triage_distribui_senha", methods={"POST"})
-     */
-    public function distribuiSenha(Request $request, AtendimentoService $atendimentoService)
-    {
+    #[Route("/distribui_senha", name: "distribui_senha", methods: ["POST"])]
+    public function distribuiSenha(
+        Request $request,
+        AtendimentoServiceInterface $atendimentoService,
+    ): Response {
         $json = json_decode($request->getContent());
         
         $envelope = new Envelope();
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         
@@ -190,9 +192,10 @@ class DefaultController extends AbstractController
         
         $cliente = null;
         if (is_object($json->cliente)) {
-            $cliente = new Cliente();
-            $cliente->setNome($json->cliente->nome ?? '');
-            $cliente->setDocumento($json->cliente->documento ?? '');
+            $cliente = new Cliente(
+                nome: $json->cliente->nome ?? '',
+                documento: $json->cliente->documento ?? '',
+            );
         }
         
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente);
@@ -201,42 +204,42 @@ class DefaultController extends AbstractController
         return $this->json($envelope);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/distribui_agendamento/{id}", name="novosga_triage_distribui_agendamento", methods={"POST"})
-     */
+    #[Route("/distribui_agendamento/{id}", name: "distribui_agendamento", methods: ["POST"])]
     public function distribuiSenhaAgendamento(
-        Request $request,
-        AtendimentoService $atendimentoService,
+        AtendimentoServiceInterface $atendimentoService,
+        AgendamentoServiceInterface $agendamentoService,
         TranslatorInterface $translator,
-        Agendamento $agendamento
-    ) {
-        if ($agendamento->getDataConfirmacao()) {
-            throw new Exception($translator->trans('error.schedule.confirmed', [], self::DOMAIN));
+        int $id,
+    ): Response {
+        $agendamento = $agendamentoService->getById($id);
+        if (!$agendamento) {
+            throw $this->createNotFoundException();
         }
-        
+        if ($agendamento->getDataConfirmacao()) {
+            throw new Exception($translator->trans('error.schedule.confirmed', [], NovosgaTriageBundle::getDomain()));
+        }
+
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
         $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
         $now = new DateTime();
-        
+
         if ($dt < $now) {
             $diff = $now->diff($dt);
             $mins = $diff->i + ($diff->h * 60);
             if ($mins > self::MAX_SCHEDULING_MINUTES_DELAY) {
-                throw new Exception($translator->trans('error.schedule.expired', [], self::DOMAIN));
+                throw new Exception($translator->trans('error.schedule.expired', [], NovosgaTriageBundle::getDomain()));
             }
         }
-        
+
         $envelope = new Envelope();
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $agendamento->getUnidade();
         $servico = $agendamento->getServico();
         $prioridade = 1;
         $cliente = $agendamento->getCliente();
-        
+
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente, $agendamento);
         $envelope->setData($data);
 
@@ -245,18 +248,17 @@ class DefaultController extends AbstractController
 
     /**
      * Busca os atendimentos a partir do número da senha.
-     *
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/consulta_senha", name="novosga_triage_consulta_senha", methods={"GET"})
      */
-    public function consultaSenha(Request $request, AtendimentoService $atendimentoService)
-    {
+    #[Route("/consulta_senha", name: "consulta_senha", methods: ["GET"])]
+    public function consultaSenha(
+        Request $request,
+        AtendimentoServiceInterface $atendimentoService,
+    ): Response {
         $envelope = new Envelope();
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $numero = $request->get('numero');
+        $numero = $request->get('numero', '');
         $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
         $envelope->setData($atendimentos);
 
@@ -265,53 +267,42 @@ class DefaultController extends AbstractController
 
     /**
      * Busca os clientes a partir do documento.
-     *
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/clientes", name="novosga_triage_clientes", methods={"GET"})
      */
-    public function clientes(Request $request)
-    {
+    #[Route("/clientes", name: "clientes", methods: ["GET"])]
+    public function clientes(
+        Request $request,
+        ClienteRepositoryInterface $clienteRepository,
+    ): Response {
         $envelope  = new Envelope();
         $documento = $request->get('q');
-        $clientes  = $this
-            ->getDoctrine()
-            ->getManager()
-            ->getRepository(Cliente::class)
-            ->findByDocumento("{$documento}%");
-        
+        $clientes  = $clienteRepository->findByDocumento("{$documento}%");
+
         $envelope->setData($clientes);
 
         return $this->json($envelope);
     }
 
-    /**
-     * @param Request $request
-     * @return Response
-     *
-     * @Route("/agendamentos/{id}", name="novosga_triage_atendamentos", methods={"GET"})
-     */
-    public function agendamentos(Request $request, Servico $servico)
-    {
+    #[Route("/agendamentos/{servicoId}", name: "atendamentos", methods: ["GET"])]
+    public function agendamentos(
+        AgendamentoRepositoryInterface $agendamentoRepository,
+        int $servicoId,
+    ): Response {
+        /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         $data = new DateTime();
-        
-        $agendamentos = $this
-            ->getDoctrine()
-            ->getRepository(Agendamento::class)
-            ->findBy(
-                [
-                    'unidade' => $unidade,
-                    'servico' => $servico,
-                    'data' => $data,
-                ],
-                [
-                    'hora' => 'ASC'
-                ]
-            );
-        
+
+        $agendamentos = $agendamentoRepository->findBy(
+            [
+                'unidade' => $unidade,
+                'servico' => $servicoId,
+                'data' => $data,
+            ],
+            [
+                'hora' => 'ASC'
+            ]
+        );
+
         return $this->json(new Envelope($agendamentos));
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Novo SGA project.
  *
@@ -15,17 +17,17 @@ use Novosga\Module\BaseModule;
 
 class NovosgaTriageBundle extends BaseModule
 {
-    public function getIconName()
+    public function getIconName(): string
     {
         return 'print';
     }
 
-    public function getDisplayName()
+    public function getDisplayName(): string
     {
         return 'module.name';
     }
 
-    public function getHomeRoute()
+    public function getHomeRoute(): string
     {
         return 'novosga_triage_index';
     }
