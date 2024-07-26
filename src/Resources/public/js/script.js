@@ -4,16 +4,13 @@
  */
 (function () {
     'use strict'
-    
+
     var Impressao = {
-        
         iframe: 'frame-impressao',
-        
-        url: function (atendimento) {
+        url(atendimento) {
             return App.url('/novosga.triage/imprimir/') + atendimento.id +'?_' + (new Date()).getTime();
         },
-        
-        imprimir: function (atendimento) {
+        imprimir(atendimento) {
             var iframe = document.getElementById(this.iframe);
             if (iframe) {
                 iframe.src = this.url(atendimento);
@@ -22,9 +19,8 @@
                 };
             }
         }
-        
     };
-    
+
     new Vue({
         el: '#triagem',
         data: {
@@ -55,6 +51,10 @@
             agendamentos: [],
             servicoAgendamento: null,
             filtroAgendamento: '',
+            servicoModal: null,
+            senhaModal: null,
+            agendamentosModal: null,
+            prioridadeModal: null,
         },
         computed: {
             servicosHabilitados: function () {
@@ -76,12 +76,12 @@
             },
         },
         methods: {
-            update: function () {
+            update() {
                 var self = this;
                 App.ajax({
                     url: App.url('/novosga.triage/ajax_update'),
                     data: {
-                        ids: self.servicoIds.join(',')
+                        ids: self.servicoIds.join(','),
                     },
                     success: function (response) {
                         if (response.data) {
@@ -91,43 +91,37 @@
                     }
                 });
             },
-
-            print: function (atendimento) {
+            print(atendimento) {
                 if (this.config.imprimir) {
                     Impressao.imprimir(atendimento);
                 }
             },
-
-            reprint: function (atendimento) {
+            reprint(atendimento) {
                 Impressao.imprimir(atendimento);
             },
-
-            showServicoInfo: function (servico) {
+            showServicoInfo(servico) {
                 var self = this;
-
                 App.ajax({
                     url: App.url('/novosga.triage/servico_info'),
                     data: {
                         id: servico
                     },
-                    success: function (response) {
+                    success(response) {
                         self.servicoInfo = response.data;
-                        $('#dialog-servico').modal('show');
+                        self.servicoModal.show();
                     }
                 });
             },
-
-            showPrioridades: function (servicoId) {
+            showPrioridades(servicoId) {
                 if (this.prioridades.length === 1) {
                     // se so tiver uma prioridade, emite a senha direto
                     this.distribuiSenha(servicoId, this.prioridades[0].id);
                 } else {
                     this.servico = servicoId;
-                    $('#dialog-prioridade').modal('show');
+                    this.prioridadeModal.show();
                 }
             },
-
-            loadAgendamentos: function () {
+            loadAgendamentos() {
                 var self = this;
                 self.agendamentos = [];
                 
@@ -142,96 +136,88 @@
                     }
                 });
             },
-            
-            agendamentoConfirm: function (agendamento) {
+            agendamentoConfirm(agendamento) {
                 var self = this;
                 
                 App.ajax({
                     url: App.url('/novosga.triage/distribui_agendamento/') + agendamento.id,
                     type: 'post',
-                    success: function (response) {
+                    success(response) {
                         self.atendimento = response.data;
                         self.print(self.atendimento);
 
                         if (self.config.exibir) {
-                            $('#dialog-senha').modal('show');
+                            self.senhaModal.show();
                         }
                     },
-                    complete: function () {
+                    complete() {
                         self.pausado = false;
                         self.servicoAgendamento = null;
                         self.loadAgendamentos();
-                        $('#dialog-agendamentos').modal('hide');
+                        self.agendamentosModal.hide();
                     }
                 });
             },
-
-            showTicket: function (ticket) {
+            showTicket(ticket) {
                 this.atendimento = ticket;
-                $('#dialog-senha').modal('show');
+                this.senhaModal.show();
             },
-
-            distribuiSenhaNormal: function (servico) {
+            distribuiSenhaNormal(servico) {
                 this.distribuiSenha(servico, 1);
             },
-
-            distribuiSenhaPrioritaria: function () {
+            distribuiSenhaPrioritaria() {
                 if (!this.prioridade || !this.servico) {
                     return;
                 }
 
                 this.distribuiSenha(this.servico, this.prioridade.id);
-
-                $('#dialog-prioridade').modal('hide');
+                this.prioridadeModal.hide();
             },
-
-            distribuiSenha: function (servico, prioridade) {
+            distribuiSenha(servico, prioridade) {
                 var self = this;
-                var defer = $.Deferred();
-
-                if (!self.pausado) {
+                return new Promise((resolve, reject) => {
+                    if (self.pausado) {
+                        return reject();
+                    }
                     // evitando de gerar várias senhas com múltiplos cliques
                     self.pausado = true;
 
-                    var data = {
+                    const data = {
                         servico: servico,
                         prioridade: prioridade,
-                        cliente: self.cliente,
-                        unidade: self.unidade.id
+                        cliente: null,
                     };
+                    if (self.cliente.nome && self.cliente.documento) {
+                        data.cliente = {...self.cliente};
+                    }
 
                     App.ajax({
                         url: App.url('/novosga.triage/distribui_senha'),
                         type: 'post',
                         data: data,
-                        success: function (response) {
+                        success(response) {
                             self.atendimento = response.data;
                             self.print(self.atendimento);
 
                             if (self.config.exibir) {
-                                $('#dialog-senha').modal('show');
+                                self.senhaModal.show();
                             }
                             
-                            defer.resolve(self.atendimento);
+                            resolve(self.atendimento);
                             self.cliente = {};
                             
                             self.update();
                         },
-                        error: function () {
-                            defer.reject();
+                        error() {
+                            reject();
                         },
-                        complete: function () {
+                        complete() {
                             self.pausado = false;
                         }
                     });
-                } else {
-                    defer.reject();
-                }
-
-                return defer.promise();
+                });
             },
-
-            consultar: function () {
+            consultar() {
                 var self = this;
 
                 App.ajax({
@@ -244,8 +230,7 @@
                     }
                 });
             },
-            
-            saveConfig: function () {
+            saveConfig() {
                 this.config.desabilitados = [];
 
                 var self = this;
@@ -257,12 +242,11 @@
                 
                 App.Storage.set('novosga.triage', JSON.stringify(this.config));
             },
-            
-            loadConfig: function () {
+            loadConfig() {
                 try {
-                    var json = App.Storage.get('novosga.triage'),
-                        config = (JSON.parse(json) || {});
-                    
+                    const json = App.Storage.get('novosga.triage');
+                    const config = (JSON.parse(json) || {});
+
                     if (config.exibir === undefined) {
                         config.exibir = true;
                     }
@@ -274,7 +258,7 @@
                     if (config.imprimir === undefined) {
                         config.imprimir = true;
                     }
-                    
+
                     this.config.imprimir = config.imprimir;
                     this.config.exibir = config.exibir;
                     this.config.desabilitados = config.desabilitados;
@@ -288,7 +272,6 @@
                     Vue.set(su, 'habilitado', habilitado);
                 });
             },
-            
             fetchClients: _.debounce(function () {
                 var self = this;
                 App.ajax({
@@ -301,8 +284,7 @@
                     }
                 })
             }, 250),
-            
-            changeClient: function () {
+            changeClient() {
                 this.cliente.nome = '';
                 for (var i in this.clientes) {
                     var c = this.clientes[i];
@@ -314,6 +296,11 @@
             }
         },
         mounted() { 
+            this.servicoModal = new bootstrap.Modal(this.$refs.servicoModal);
+            this.senhaModal = new bootstrap.Modal(this.$refs.senhaModal);
+            this.agendamentosModal = new bootstrap.Modal(this.$refs.agendamentosModal);
+            this.prioridadeModal = new bootstrap.Modal(this.$refs.prioridadeModal);
+
             App.SSE.connect([
                 `/unidades/${this.unidade.id}/fila`
             ]);
@@ -326,13 +313,12 @@
             App.SSE.ondisconnect = () => {
                 this.update();
             };
-            
+
             this.servicos.forEach((su) => {
                 this.servicoIds.push(su.servico.id);
             });
 
             this.loadConfig();
-            
             this.update();
         }
     });

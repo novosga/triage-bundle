@@ -24,14 +24,16 @@ use Novosga\Repository\PrioridadeRepositoryInterface;
 use Novosga\Repository\ServicoRepositoryInterface;
 use Novosga\Service\AgendamentoServiceInterface;
 use Novosga\Service\AtendimentoServiceInterface;
+use Novosga\Service\ClienteServiceInterface;
 use Novosga\Service\ServicoServiceInterface;
 use Novosga\Service\TicketServiceInterface;
-use Novosga\TriageBundle\Dto\Cliente;
+use Novosga\TriageBundle\Dto\NovaSenhaDto;
 use Novosga\TriageBundle\NovosgaTriageBundle;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -177,28 +179,30 @@ class DefaultController extends AbstractController
 
     #[Route("/distribui_senha", name: "distribui_senha", methods: ["POST"])]
     public function distribuiSenha(
-        Request $request,
         AtendimentoServiceInterface $atendimentoService,
+        ClienteServiceInterface $clienteService,
+        #[MapRequestPayload] NovaSenhaDto $data,
     ): Response {
-        $json = json_decode($request->getContent());
-        
         $envelope = new Envelope();
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        
-        $servico = isset($json->servico) ? (int) $json->servico : 0;
-        $prioridade = isset($json->prioridade) ? (int) $json->prioridade : 0;
-        
+
         $cliente = null;
-        if (is_object($json->cliente)) {
-            $cliente = new Cliente(
-                nome: $json->cliente->nome ?? '',
-                documento: $json->cliente->documento ?? '',
-            );
+        if ($data->cliente !== null) {
+            $cliente = $clienteService
+                ->build()
+                ->setNome($data->cliente->nome ?? '')
+                ->setDocumento($data->cliente->documento ?? '');
         }
-        
-        $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente);
+
+        $data = $atendimentoService->distribuiSenha(
+            $unidade,
+            $usuario,
+            $data->servico,
+            $data->prioridade,
+            $cliente
+        );
         $envelope->setData($data);
 
         return $this->json($envelope);
