@@ -90,12 +90,16 @@ class DefaultController extends AbstractController
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-    
+
         if ($unidade) {
-            $ids = array_filter(explode(',', $request->get('ids')), function ($i) {
-                return $i > 0;
-            });
-            
+            $ids = array_filter(
+                array_map(
+                    fn ($i) => (int) $i,
+                    explode(',', $request->get('ids')),
+                ),
+                fn ($i) => $i > 0,
+            );
+
             $senhas = [];
             if (count($ids)) {
                 // total senhas do servico (qualquer status)
@@ -103,7 +107,7 @@ class DefaultController extends AbstractController
                 foreach ($rs as $r) {
                     $senhas[$r['id']] = ['total' => $r['total'], 'fila' => 0];
                 }
-                
+
                 // total senhas esperando
                 $rs = $atendimentoRepository
                     ->countByServicos(
@@ -114,7 +118,7 @@ class DefaultController extends AbstractController
                 foreach ($rs as $r) {
                     $senhas[$r['id']]['fila'] = $r['total'];
                 }
-                
+
                 // ultima senha
                 $ultimoAtendimento = $atendimentoRepository->getUltimo($unidade);
 
@@ -122,7 +126,7 @@ class DefaultController extends AbstractController
                     'ultima' => $ultimoAtendimento,
                     'servicos' => $senhas,
                 ];
-                
+
                 $envelope->setData($data);
             }
         }
@@ -143,11 +147,11 @@ class DefaultController extends AbstractController
         $unidade = $usuario->getLotacao()->getUnidade();
         $servico = $servicoRepository->find($id);
         $envelope = new Envelope();
-        
+
         if (!$servico) {
             throw new Exception($translator->trans('error.invalid_service', [], NovosgaTriageBundle::getDomain()));
         }
-        
+
         $data = [
             'nome' => $servico->getNome(),
             'descricao' => $servico->getDescricao()
@@ -155,7 +159,7 @@ class DefaultController extends AbstractController
 
         // ultima senha
         $atendimento = $atendimentoRepository->getUltimo($unidade, $servico);
-        
+
         if ($atendimento) {
             $data['senha']   = (string) $atendimento->getSenha();
             $data['senhaId'] = $atendimento->getId();
@@ -163,7 +167,7 @@ class DefaultController extends AbstractController
             $data['senha'] = '-';
             $data['senhaId'] = '';
         }
-        
+
         // subservicos
         $data['subservicos'] = [];
         $subservicos = $servicoRepository->getSubservicos($servico);
