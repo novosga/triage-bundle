@@ -29,6 +29,7 @@ use Novosga\Service\ServicoServiceInterface;
 use Novosga\Service\TicketServiceInterface;
 use Novosga\TriageBundle\Dto\NovaSenhaDto;
 use Novosga\TriageBundle\NovosgaTriageBundle;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -220,7 +221,9 @@ class DefaultController extends AbstractController
     public function distribuiSenhaAgendamento(
         AtendimentoServiceInterface $atendimentoService,
         AgendamentoServiceInterface $agendamentoService,
+        PrioridadeRepositoryInterface $prioridadeRepository,
         TranslatorInterface $translator,
+        ClockInterface $clock,
         int $id,
     ): Response {
         $agendamento = $agendamentoService->getById($id);
@@ -234,13 +237,17 @@ class DefaultController extends AbstractController
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
         $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
-        $now = new DateTime();
+        $now = $clock->now();
 
         if ($dt < $now) {
             $diff = $now->diff($dt);
             $mins = $diff->i + ($diff->h * 60);
             if ($mins > self::MAX_SCHEDULING_MINUTES_DELAY) {
-                throw new Exception($translator->trans('error.schedule.expired', [], NovosgaTriageBundle::getDomain()));
+                throw new Exception($translator->trans(
+                    'error.schedule.expired',
+                    [ '%min%' => self::MAX_SCHEDULING_MINUTES_DELAY ],
+                    NovosgaTriageBundle::getDomain()
+                ));
             }
         }
 
@@ -249,8 +256,8 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $agendamento->getUnidade();
         $servico = $agendamento->getServico();
-        $prioridade = 1;
         $cliente = $agendamento->getCliente();
+        $prioridade = $prioridadeRepository->findAtivas()[0];
 
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente, $agendamento);
         $envelope->setData($data);
@@ -285,9 +292,9 @@ class DefaultController extends AbstractController
         Request $request,
         ClienteRepositoryInterface $clienteRepository,
     ): Response {
-        $envelope  = new Envelope();
+        $envelope = new Envelope();
         $documento = $request->get('q');
-        $clientes  = $clienteRepository->findByDocumento("{$documento}%");
+        $clientes = $clienteRepository->findByDocumento("{$documento}%");
 
         $envelope->setData($clientes);
 
@@ -297,12 +304,13 @@ class DefaultController extends AbstractController
     #[Route("/agendamentos/{servicoId}", name: "atendamentos", methods: ["GET"])]
     public function agendamentos(
         AgendamentoRepositoryInterface $agendamentoRepository,
+        ClockInterface $clock,
         int $servicoId,
     ): Response {
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $data = new DateTime();
+        $data = $clock->now();
 
         $agendamentos = $agendamentoRepository->findByUnidadeAndServicoAndData(
             $unidade,

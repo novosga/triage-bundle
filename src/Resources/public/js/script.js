@@ -126,10 +126,10 @@
                 }
             },
             loadAgendamentos() {
+                this.agendamentos = [];
                 if (!this.servicoAgendamento) {
                     return;
                 }
-                this.agendamentos = [];
                 App.ajax({
                     url: App.url(`/novosga.triage/agendamentos/${this.servicoAgendamento}`),
                     success: (response) => {
@@ -153,6 +153,7 @@
                         this.servicoAgendamento = null;
                         this.loadAgendamentos();
                         this.agendamentosModal.hide();
+                        this.update();
                     }
                 });
             },
@@ -210,7 +211,7 @@
                         error() {
                             reject();
                         },
-                        complete() {
+                        complete: () => {
                             this.pausado = false;
                         }
                     });
@@ -293,6 +294,10 @@
             this.senhaModal = new bootstrap.Modal(this.$refs.senhaModal);
             this.agendamentosModal = new bootstrap.Modal(this.$refs.agendamentosModal);
             this.prioridadeModal = new bootstrap.Modal(this.$refs.prioridadeModal);
+
+            this.$refs.agendamentosModal.addEventListener('show.bs.modal', () => {
+                this.loadAgendamentos();
+            })
 
             App.SSE.connect([
                 `/unidades/${this.unidade.id}/fila`
