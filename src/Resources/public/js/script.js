@@ -30,6 +30,7 @@
             prioridades: (prioridades || []),
             unidade: (unidade || {}),
             cliente: {
+                id: null,
                 nome: '',
                 documento: ''
             },
@@ -47,6 +48,7 @@
                 exibir: true,
                 desabilitados: [],
             },
+            fetchingClientes: false,
             clientes: [],
             agendamentos: [],
             servicoAgendamento: null,
@@ -188,7 +190,10 @@
                         cliente: null,
                     };
                     if (this.cliente.nome && this.cliente.documento) {
-                        data.cliente = {...this.cliente};
+                        data.cliente = {
+                            nome: this.cliente.nome,
+                            documento: this.cliente.documento,
+                        };
                     }
 
                     App.ajax({
@@ -268,24 +273,36 @@
                 });
             },
             fetchClients: _.debounce(function () {
+                this.fetchingClientes = true;
                 App.ajax({
                     url: App.url('/novosga.triage/clientes'),
                     data: {
                         q: this.cliente.documento
                     },
                     success: (response) => {
+                        this.fetchingClientes = false;
                         this.clientes = response.data;
+                        this.changeClient();
+                    },
+                    error: () => {
+                        this.fetchingClientes = false;
                     }
                 })
-            }, 250),
+            }, 400),
+            changeDocumento() {
+                this.cliente.documento = this.cliente.documento.toUpperCase();
+                this.fetchClients();
+            },
             changeClient() {
-                this.cliente.nome = '';
-                for (var i in this.clientes) {
-                    var c = this.clientes[i];
-                    if (c.documento === this.cliente.documento) {
-                        this.cliente.nome = c.nome;
-                        break;
-                    }
+                const isDisabled = this.cliente.id;
+                this.cliente.id = null;
+                const existingCliente = this.clientes.find((c) => c.documento === this.cliente.documento)
+                if (existingCliente) {
+                    this.cliente.id = existingCliente.id;
+                    this.cliente.nome = existingCliente.nome;
+                    this.cliente.documento = existingCliente.documento;
+                } else if (isDisabled) {
+                    this.cliente.nome = '';
                 }
             }
         },

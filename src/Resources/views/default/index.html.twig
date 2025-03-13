@@ -37,7 +37,7 @@
                             </span>
                             <label for="cliente-documento" class="sr-only">{{ 'label.customer.id'|trans }}</label>
                             <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="30" placeholder="{{ 'label.customer.id'|trans }}" v-model="cliente.documento" 
-                                   v-on:input="fetchClients"
+                                   v-on:input="changeDocumento"
                                    v-on:change="changeClient"
                                    v-on:blur="changeClient">
                             <datalist id="documentos">
@@ -51,7 +51,7 @@
                                 <i class="fa fa-user"></i>
                             </span>
                             <label for="cliente-nome" class="sr-only">{{ 'label.name'|trans }}</label>
-                            <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{{ 'label.name'|trans }}" v-model="cliente.nome" />
+                            <input type="text" id="cliente-nome" class="form-control" maxlength="100" placeholder="{{ 'label.name'|trans }}" v-model="cliente.nome" :disabled="fetchingClientes || cliente.id" />
                         </div>
                     </div>
                 </div>
