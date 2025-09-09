@@ -119,9 +119,9 @@
                 });
             },
             showPrioridades(servicoId) {
-                if (this.prioridades.length === 1) {
+                if (this.demaisPrioridades.length === 1) {
                     // se so tiver uma prioridade, emite a senha direto
-                    this.distribuiSenha(servicoId, this.prioridades[0].id);
+                    this.distribuiSenha(servicoId, this.demaisPrioridades[0].id);
                 } else {
                     this.servico = servicoId;
                     this.prioridadeModal.show();
