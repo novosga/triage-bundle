@@ -89,7 +89,7 @@
                                 {{su.sigla}} - {{su.servico.nome}}
                             {%- endverbatim -%}
                         </a>
-                        <span class="badge badge-pill badge-secondary" title="{% trans %}Aguardando atendimento{% endtrans %} / {% trans %}Total de senhas do serviço{% endtrans %}">
+                        <span class="badge badge-pill bg-secondary" title="{% trans %}Aguardando atendimento{% endtrans %} / {% trans %}Total de senhas do serviço{% endtrans %}">
                             {%- verbatim -%}
                                 {{totais[su.servico.id] ? totais[su.servico.id].fila : '-'}}
                             {%- endverbatim -%}
