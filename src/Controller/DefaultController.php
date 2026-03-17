@@ -236,7 +236,7 @@ class DefaultController extends AbstractController
 
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
-        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}");
+        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}", $agendamento->getUnidade()->getDateTimeZone());
         $now = $clock->now();
 
         if ($dt < $now) {
