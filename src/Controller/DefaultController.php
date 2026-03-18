@@ -234,10 +234,11 @@ class DefaultController extends AbstractController
             throw new Exception($translator->trans('error.schedule.confirmed', [], NovosgaTriageBundle::getDomain()));
         }
 
+        $timezone = $agendamento->getUnidade()->getDateTimeZone();
         $data = $agendamento->getData()->format('Y-m-d');
         $hora = $agendamento->getHora()->format('H:i');
-        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}", $agendamento->getUnidade()->getDateTimeZone());
-        $now = $clock->now();
+        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}", $timezone);
+        $now = $clock->now()->setTimezone($timezone);
 
         if ($dt < $now) {
             $diff = $now->diff($dt);
