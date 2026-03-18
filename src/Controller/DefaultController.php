@@ -310,7 +310,7 @@ class DefaultController extends AbstractController
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $data = $clock->now();
+        $data = $clock->now()->setTimezone($unidade->getDateTimeZone());
 
         $agendamentos = $agendamentoRepository->findByUnidadeAndServicoAndData(
             $unidade,
