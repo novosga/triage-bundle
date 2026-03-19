@@ -87,10 +87,10 @@ class DefaultController extends AbstractController
         Request $request,
         AtendimentoRepositoryInterface $atendimentoRepository,
     ): Response {
-        $envelope = new Envelope();
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
+        $envelope = new Envelope(timezone: $unidade->getDateTimeZone());
 
         if ($unidade) {
             $ids = array_filter(
@@ -147,7 +147,7 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         $servico = $servicoRepository->find($id);
-        $envelope = new Envelope();
+        $envelope = new Envelope(timezone: $unidade->getDateTimeZone());
 
         if (!$servico) {
             throw new Exception($translator->trans('error.invalid_service', [], NovosgaTriageBundle::getDomain()));
@@ -188,10 +188,10 @@ class DefaultController extends AbstractController
         ClienteServiceInterface $clienteService,
         #[MapRequestPayload] NovaSenhaDto $data,
     ): Response {
-        $envelope = new Envelope();
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
+        $envelope = new Envelope(timezone: $unidade->getDateTimeZone());
 
         $cliente = null;
         if ($data->cliente !== null) {
@@ -252,7 +252,6 @@ class DefaultController extends AbstractController
             }
         }
 
-        $envelope = new Envelope();
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $agendamento->getUnidade();
@@ -261,9 +260,11 @@ class DefaultController extends AbstractController
         $prioridade = $prioridadeRepository->findAtivas()[0];
 
         $data = $atendimentoService->distribuiSenha($unidade, $usuario, $servico, $prioridade, $cliente, $agendamento);
-        $envelope->setData($data);
 
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $data,
+        ));
     }
 
     /**
@@ -274,15 +275,16 @@ class DefaultController extends AbstractController
         Request $request,
         AtendimentoServiceInterface $atendimentoService,
     ): Response {
-        $envelope = new Envelope();
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         $numero = $request->get('numero', '');
         $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
-        $envelope->setData($atendimentos);
 
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $atendimentos,
+        ));
     }
 
     /**
@@ -319,6 +321,9 @@ class DefaultController extends AbstractController
             $data
         );
 
-        return $this->json(new Envelope($agendamentos));
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $agendamentos,
+        ));
     }
 }
