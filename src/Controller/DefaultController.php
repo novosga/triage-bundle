@@ -147,7 +147,6 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
         $servico = $servicoRepository->find($id);
-        $envelope = new Envelope(timezone: $unidade->getDateTimeZone());
 
         if (!$servico) {
             throw new Exception($translator->trans('error.invalid_service', [], NovosgaTriageBundle::getDomain()));
@@ -177,9 +176,10 @@ class DefaultController extends AbstractController
             $data['subservicos'][] = $s->getNome();
         }
 
-        $envelope->setData($data);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $data,
+        ));
     }
 
     #[Route("/distribui_senha", name: "distribui_senha", methods: ["POST"])]
@@ -295,13 +295,17 @@ class DefaultController extends AbstractController
         Request $request,
         ClienteRepositoryInterface $clienteRepository,
     ): Response {
-        $envelope = new Envelope();
+        /** @var UsuarioInterface */
+        $usuario = $this->getUser();
+        $unidade = $usuario->getLotacao()->getUnidade();
+
         $documento = $request->get('q');
         $clientes = $clienteRepository->findByDocumento("{$documento}%");
 
-        $envelope->setData($clientes);
-
-        return $this->json($envelope);
+        return $this->json(new Envelope(
+            timezone: $unidade->getDateTimeZone(),
+            data: $clientes,
+        ));
     }
 
     #[Route("/agendamentos/{servicoId}", name: "atendamentos", methods: ["GET"])]
