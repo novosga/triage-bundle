@@ -3,16 +3,20 @@
     "license": "MIT",
     "type": "symfony-bundle",
     "autoload": {
-        "psr-4": { "Novosga\\TriageBundle\\": "src/" }
+        "psr-4": {
+            "Novosga\\TriageBundle\\": "src/"
+        }
     },
     "autoload-dev": {
-        "psr-4": { "Novosga\\TriageBundle\\Tests\\": "tests/" }
+        "psr-4": {
+            "Novosga\\TriageBundle\\Tests\\": "tests/"
+        }
     },
     "require": {
         "php": ">=8.2",
         "doctrine/orm": "^3.2",
         "novosga/core": "2.3.x-dev",
-        "symfony/framework-bundle": "7.1.*",
+        "symfony/framework-bundle": "7.4.*",
         "psr/clock": "^1.0"
     },
     "require-dev": {
