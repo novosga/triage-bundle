@@ -96,7 +96,7 @@ class DefaultController extends AbstractController
             $ids = array_filter(
                 array_map(
                     fn ($i) => (int) $i,
-                    explode(',', $request->get('ids')),
+                    explode(',', $request->query->get('ids')),
                 ),
                 fn ($i) => $i > 0,
             );
@@ -142,7 +142,7 @@ class DefaultController extends AbstractController
         ServicoRepositoryInterface $servicoRepository,
         TranslatorInterface $translator,
     ): Response {
-        $id = (int) $request->get('id');
+        $id = (int) $request->query->get('id');
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
@@ -278,7 +278,7 @@ class DefaultController extends AbstractController
         /** @var UsuarioInterface */
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
-        $numero = $request->get('numero', '');
+        $numero = $request->query->get('numero', '');
         $atendimentos = $atendimentoService->buscaAtendimentos($unidade, $numero);
 
         return $this->json(new Envelope(
@@ -299,7 +299,7 @@ class DefaultController extends AbstractController
         $usuario = $this->getUser();
         $unidade = $usuario->getLotacao()->getUnidade();
 
-        $documento = $request->get('q');
+        $documento = $request->query->get('q');
         $clientes = $clienteRepository->findByDocumento("{$documento}%");
 
         return $this->json(new Envelope(
