@@ -242,7 +242,11 @@
       </trans-unit>
       <trans-unit id="61">
         <source>label.time</source>
-        
+
+      </trans-unit>
+      <trans-unit id="error.maximum_attendance_reached">
+        <source>error.maximum_attendance_reached</source>
+        <target>Limite máximo de atendimentos atingido</target>
       </trans-unit>
     </body>
   </file>

@@ -214,6 +214,10 @@
         <source>label.filtrar_agendamento_placeholder</source>
         <target>Nome, Documento ou hora</target>
       </trans-unit>
+      <trans-unit id="error.maximum_attendance_reached">
+        <source>error.maximum_attendance_reached</source>
+        <target>Limite máximo de atendimentos atingido</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
