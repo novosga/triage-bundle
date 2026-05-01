@@ -14,239 +14,235 @@
       <trans-unit id="1">
         <source>title</source>
         <target>Selección</target>
-        
+
       </trans-unit>
       <trans-unit id="2">
         <source>subtitle</source>
         <target>Emisión de numero</target>
-        
+
       </trans-unit>
       <trans-unit id="3">
         <source>button.find</source>
         <target>Consultar</target>
-        
+
       </trans-unit>
       <trans-unit id="4">
         <source>placeholder.search</source>
         <target>Buscar Numero</target>
-        
+
       </trans-unit>
       <trans-unit id="5">
         <source>label.no_priority</source>
         <target>Normal</target>
-        
+
       </trans-unit>
       <trans-unit id="6">
         <source>label.priority</source>
         <target>Prioridad</target>
-        
+
       </trans-unit>
       <trans-unit id="7">
         <source>label.total</source>
         <target>Total</target>
-        
+
       </trans-unit>
       <trans-unit id="8">
         <source>modal.attendance</source>
         <target>Tratamiento</target>
-        
+
       </trans-unit>
       <trans-unit id="9">
         <source>modal.attendance.ticket</source>
         <target>Billete</target>
-        
+
       </trans-unit>
       <trans-unit id="10">
         <source>label.service</source>
         <target>Servicio</target>
-        
+
       </trans-unit>
       <trans-unit id="11">
         <source>label.ticket.wait_time</source>
         <target>Tiempo de espera</target>
-        
+
       </trans-unit>
       <trans-unit id="12">
         <source>label.customer</source>
         <target>Cliente</target>
-        
+
       </trans-unit>
       <trans-unit id="13">
         <source>label.customer.name</source>
         <target>Nombre</target>
-        
+
       </trans-unit>
       <trans-unit id="14">
         <source>label.customer.id</source>
         <target>Nombre</target>
-        
+
       </trans-unit>
       <trans-unit id="15">
         <source>label.yes</source>
         <target>Si</target>
-        
+
       </trans-unit>
       <trans-unit id="16">
         <source>label.no</source>
         <target>No</target>
-        
+
       </trans-unit>
       <trans-unit id="17">
         <source>alert.title</source>
         <target>Atención</target>
-        
+
       </trans-unit>
       <trans-unit id="18">
         <source>alert.cancel.text</source>
         <target>Desea realmente cancelar ese número?</target>
-        
+
       </trans-unit>
       <trans-unit id="19">
         <source>alert.reactivate.text</source>
         <target>Desea realmente reactivar ese número?</target>
-        
+
       </trans-unit>
       <trans-unit id="20">
         <source>alert.transfer.text</source>
         <target>¿Desea realmente transferir esta ese numero?</target>
-        
+
       </trans-unit>
       <trans-unit id="21">
         <source>modal.attendance.button.reactivate</source>
         <target>Reactivar número</target>
-        
+
       </trans-unit>
       <trans-unit id="22">
         <source>modal.attendance.button.transfer</source>
         <target>Transferir / Modificar número</target>
-        
+
       </trans-unit>
       <trans-unit id="23">
         <source>modal.attendance.button.cancel</source>
         <target>Cancelar número</target>
-        
+
       </trans-unit>
       <trans-unit id="24">
         <source>modal.transfer</source>
         <target>Transferir número</target>
-        
+
       </trans-unit>
       <trans-unit id="25">
         <source>modal.transfer.button</source>
         <target>Tranferir</target>
-        
+
       </trans-unit>
       <trans-unit id="35">
         <source>modal.search</source>
         <target>Busca</target>
-        
+
       </trans-unit>
       <trans-unit id="36">
         <source>modal.search.placeholder</source>
         <target>Contraseña completa, sigla o número</target>
-        
+
       </trans-unit>
       <trans-unit id="37">
         <source>label.ticket.number</source>
         <target>Número</target>
-        
+
       </trans-unit>
       <trans-unit id="38">
         <source>label.ticket.arrival_date</source>
         <target>Date de llegada</target>
-        
+
       </trans-unit>
       <trans-unit id="39">
         <source>label.ticket.start_date</source>
         <target>Data de inicio</target>
-        
+
       </trans-unit>
       <trans-unit id="40">
         <source>label.ticket.end_date</source>
         <target>Data de finalización</target>
-        
+
       </trans-unit>
       <trans-unit id="41">
         <source>label.triage</source>
         <target>Selección</target>
-        
+
       </trans-unit>
       <trans-unit id="42">
         <source>label.ticket.user</source>
         <target>Operador</target>
-        
+
       </trans-unit>
       <trans-unit id="43">
         <source>label.status</source>
         <target>Situación</target>
-        
+
       </trans-unit>
       <trans-unit id="44">
         <source>MM/DD/YYYY HH:mm:ss</source>
         <target>DD/MM/YYYY HH:mm:ss</target>
-        
+
       </trans-unit>
       <trans-unit id="45">
         <source>MM/DD/YYYY</source>
-        
+
       </trans-unit>
       <trans-unit id="49">
         <source>modal.search.button.submit</source>
         <target>Consultar</target>
-        
+
       </trans-unit>
       <trans-unit id="50">
         <source>server.datetime</source>
         <target>Fecha y hora en el servidor</target>
-        
+
       </trans-unit>
       <trans-unit id="51">
         <source>error.invalid_service</source>
         <target>Servicio inválido</target>
-        
+
       </trans-unit>
       <trans-unit id="52">
         <source>error.schedule.confirmed</source>
-        
-      </trans-unit>
-      <trans-unit id="53">
-        <source>error.schedule.expired</source>
-        
+
       </trans-unit>
       <trans-unit id="54">
         <source>label.name</source>
         <target>Nombre</target>
-        
+
       </trans-unit>
       <trans-unit id="55">
         <source>label.priority</source>
         <target>Prioridad</target>
-        
+
       </trans-unit>
       <trans-unit id="56">
         <source>label.ticket</source>
         <target>Contraseña</target>
-        
+
       </trans-unit>
       <trans-unit id="57">
         <source>label.customer.id</source>
         <target>Documento</target>
-        
+
       </trans-unit>
       <trans-unit id="58">
         <source>label.description</source>
         <target>Descripción</target>
-        
+
       </trans-unit>
       <trans-unit id="59">
         <source>label.subservices</source>
         <target>Subservicios</target>
-        
+
       </trans-unit>
       <trans-unit id="60">
         <source>label.date</source>
         <target>Dato</target>
-        
+
       </trans-unit>
       <trans-unit id="61">
         <source>label.time</source>
