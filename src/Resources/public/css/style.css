@@ -5,7 +5,7 @@
 body>section {
     padding: 20px 10px;
 }
- 
+
 #infobar {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -48,6 +48,19 @@ body>section {
     padding: 5px 0;
 }
 
+#dialog-prioridade ul li label {
+    display: flex;
+    align-items: center;
+}
+
+#dialog-prioridade ul li label span {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    border-radius: 3px;
+    margin-right: .5rem;
+}
+
 #dialog-prioridade ul li input {
     margin: 5px 10px 0 0;
     float: left;
@@ -73,4 +86,3 @@ body>section {
 #dialog-busca .result {
     overflow: auto;
 }
-

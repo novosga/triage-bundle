@@ -175,6 +175,7 @@
                 }
                 this.distribuiSenha(this.servico, this.prioridade.id);
                 this.prioridadeModal.hide();
+                this.prioridade = null;
             },
             distribuiSenha(servico, prioridade) {
                 return new Promise((resolve, reject) => {
@@ -207,10 +208,10 @@
                             if (this.config.exibir) {
                                 this.senhaModal.show();
                             }
-                            
+
                             resolve(this.atendimento);
                             this.cliente = {};
-                            
+
                             this.update();
                         },
                         error() {
@@ -240,7 +241,7 @@
                         this.config.desabilitados.push(su.servico.id);
                     }
                 });
-                
+
                 App.Storage.set('novosga.triage', JSON.stringify(this.config));
             },
             loadConfig() {
@@ -306,7 +307,7 @@
                 }
             }
         },
-        mounted() { 
+        mounted() {
             this.servicoModal = new bootstrap.Modal(this.$refs.servicoModal);
             this.senhaModal = new bootstrap.Modal(this.$refs.senhaModal);
             this.agendamentosModal = new bootstrap.Modal(this.$refs.agendamentosModal);

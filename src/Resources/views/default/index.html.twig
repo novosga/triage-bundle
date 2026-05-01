@@ -25,7 +25,7 @@
             </a>
         </div>
     </div>
-    
+
     <div id="triagem" v-cloak>
         <div id="infobar" class="row">
             <div class="col-md-10 col-9">
@@ -36,7 +36,7 @@
                                 <i class="fa fa-credit-card"></i>
                             </span>
                             <label for="cliente-documento" class="sr-only">{{ 'label.customer.id'|trans }}</label>
-                            <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="30" placeholder="{{ 'label.customer.id'|trans }}" v-model="cliente.documento" 
+                            <input type="text" id="cliente-documento" list="documentos" class="form-control" maxlength="30" placeholder="{{ 'label.customer.id'|trans }}" v-model="cliente.documento"
                                    v-on:input="changeDocumento"
                                    v-on:change="changeClient"
                                    v-on:blur="changeClient">
@@ -58,7 +58,10 @@
             </div>
             <div class="col-md-2 col-3">
                 <div class="ultima-senha" title="{% trans %}Última senha{% endtrans %}" v-if="ultimaSenha">
-                    <button v-bind:class="{ 'btn btn-sm':true, 'btn-primary': ultimaSenha.prioridade.peso===0, 'btn-danger': ultimaSenha.prioridade.peso>0 }" v-on:click="showTicket(ultimaSenha)">
+                    <button
+                        :class="{ 'btn btn-sm': true, 'btn-primary': ultimaSenha.prioridade.peso===0, 'btn-danger': ultimaSenha.prioridade.peso>0 }"
+                        :style="{ 'background-color': ultimaSenha.prioridade.cor, 'border-color': ultimaSenha.prioridade.cor }"
+                        v-on:click="showTicket(ultimaSenha)">
                         <i class="fa fa-print"></i>&nbsp;
                         {%- verbatim -%}
                             {{ultimaSenha.senha.format}}
@@ -152,7 +155,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" v-on:click.prevent="reprint(atendimento)">
-                            <i class="fa fa-print"></i> 
+                            <i class="fa fa-print"></i>
                             {% trans %}Imprimir{% endtrans %}
                         </button>
                     </div>
@@ -175,7 +178,7 @@
                                     <legend>{% trans %}Serviços{% endtrans %}</legend>
                                     <div class="checkbox" v-for="su in servicos">
                                         <label>
-                                            <input type="checkbox" v-model="su.habilitado" v-on:change="saveConfig"> 
+                                            <input type="checkbox" v-model="su.habilitado" v-on:change="saveConfig">
                                             {% verbatim %}
                                                 {{ su.sigla }} - {{ su.servico.nome }}
                                             {% endverbatim %}
@@ -188,13 +191,13 @@
                                     <legend>{% trans %}Impressão{% endtrans %}</legend>
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig"> 
+                                            <input type="checkbox" v-model="config.imprimir" v-on:change="saveConfig">
                                             {% trans %}Habilitar impressão{% endtrans %}
                                         </label>
                                     </div>
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" v-model="config.exibir" v-on:change="saveConfig"> 
+                                            <input type="checkbox" v-model="config.exibir" v-on:change="saveConfig">
                                             {% trans %}Exibir senha gerada{% endtrans %}
                                         </label>
                                     </div>
@@ -232,7 +235,7 @@
                                         {% trans %}Última senha{% endtrans %}
                                     </th>
                                     <td>
-                                        <button class="btn btn-secondary" title="{% trans %}Reimprimir{% endtrans %}" 
+                                        <button class="btn btn-secondary" title="{% trans %}Reimprimir{% endtrans %}"
                                                 v-on:click.prevent="reprint({ id: servicoInfo.senhaId })" v-if="servicoInfo.senhaId">
                                             {%- verbatim -%}
                                                 {{servicoInfo.senha}}
@@ -288,8 +291,10 @@
                         <ul>
                             <li v-for="p in demaisPrioridades">
                                 <label>
-                                    <input type="radio" v-bind:value="p" v-model="prioridade">
+                                    <input type="radio" :value="p" v-model="prioridade">
                                     {% verbatim %}
+                                        <span v-if="p.cor" :style="{ 'background-color': p.cor }"></span>
+                                        <span v-else :style="{ 'background-color': '#FF0000' }"></span>
                                         {{ p.nome }}
                                     {% endverbatim %}
                                 </label>
@@ -383,7 +388,7 @@
                 </div>
             </div>
         </div>
-                                
+
         {# dialog agendamentos #}
         <div ref="agendamentosModal" id="dialog-agendamentos" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -440,8 +445,8 @@
                                             {{agendamento.cliente.documento}}
                                         </td>
                                         <td class="text-end">
-                                            <button type="button" class="btn btn-outline-success" 
-                                                    title="{% trans %}Confirmar presença{% endtrans %}" 
+                                            <button type="button" class="btn btn-outline-success"
+                                                    title="{% trans %}Confirmar presença{% endtrans %}"
                                                     v-on:click="agendamentoConfirm(agendamento)"
                                                     v-if="!agendamento.dataConfirmacao">
                                                 <i class="fa fa-check"></i>
@@ -461,7 +466,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link type="text/css" rel="stylesheet" href="{{ asset('bundles/novosgatriage/css/style.css') }}">
-{% endblock %}    
+{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
