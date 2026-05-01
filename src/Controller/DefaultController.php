@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Novosga\TriageBundle\Controller;
 
-use DateTime;
 use Exception;
 use Novosga\Entity\UsuarioInterface;
 use Novosga\Http\Envelope;
@@ -45,8 +44,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[Route("/", name: "novosga_triage_")]
 class DefaultController extends AbstractController
 {
-    private const MAX_SCHEDULING_MINUTES_DELAY = 60;
-
     #[Route("/", name: "index", methods: ['GET'])]
     public function index(
         ServicoServiceInterface $servicoService,
@@ -223,7 +220,6 @@ class DefaultController extends AbstractController
         AgendamentoServiceInterface $agendamentoService,
         PrioridadeRepositoryInterface $prioridadeRepository,
         TranslatorInterface $translator,
-        ClockInterface $clock,
         int $id,
     ): Response {
         $agendamento = $agendamentoService->getById($id);
@@ -232,24 +228,6 @@ class DefaultController extends AbstractController
         }
         if ($agendamento->getDataConfirmacao()) {
             throw new Exception($translator->trans('error.schedule.confirmed', [], NovosgaTriageBundle::getDomain()));
-        }
-
-        $timezone = $agendamento->getUnidade()->getDateTimeZone();
-        $data = $agendamento->getData()->format('Y-m-d');
-        $hora = $agendamento->getHora()->format('H:i');
-        $dt = DateTime::createFromFormat('Y-m-d H:i', "{$data} {$hora}", $timezone);
-        $now = $clock->now()->setTimezone($timezone);
-
-        if ($dt < $now) {
-            $diff = $now->diff($dt);
-            $mins = $diff->i + ($diff->h * 60);
-            if ($mins > self::MAX_SCHEDULING_MINUTES_DELAY) {
-                throw new Exception($translator->trans(
-                    'error.schedule.expired',
-                    [ '%min%' => self::MAX_SCHEDULING_MINUTES_DELAY ],
-                    NovosgaTriageBundle::getDomain()
-                ));
-            }
         }
 
         /** @var UsuarioInterface */

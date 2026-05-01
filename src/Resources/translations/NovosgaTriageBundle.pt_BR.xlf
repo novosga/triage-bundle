@@ -170,10 +170,6 @@
         <source>error.schedule.confirmed</source>
         <target>Agendamento já confirmado</target>
       </trans-unit>
-      <trans-unit id="53">
-        <source>error.schedule.expired</source>
-        <target>Agendamento expirado. Tempo máximo de espera de %min% minutos.</target>
-      </trans-unit>
       <trans-unit id="54">
         <source>label.name</source>
         <target>Nome</target>
